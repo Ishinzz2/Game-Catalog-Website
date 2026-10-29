@@ -1,5 +1,11 @@
 <div>
     <div class="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-end"><div><p class="text-xs font-semibold uppercase tracking-[.2em] text-cyan-300">Inventory control</p><h2 class="mt-2 text-xl font-bold">Kelola kepemilikan game</h2><p class="mt-1 text-sm text-slate-500">Data inventaris dibatasi untuk akun yang sedang masuk.</p></div><input wire:model.live.debounce.300ms="search" type="search" placeholder="Cari judul game..." class="rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-sm outline-none focus:border-violet-400"></div>
+    <div class="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <select wire:model.live="filterPlatform" class="rounded-xl border border-white/10 bg-slate-900 px-3 py-3 text-sm"><option value="">Semua platform</option>@foreach($accounts as $account)<option value="{{ $account->id }}">{{ $account->platform->name }}</option>@endforeach</select>
+        <select wire:model.live="filterGenre" class="rounded-xl border border-white/10 bg-slate-900 px-3 py-3 text-sm"><option value="">Semua genre</option>@foreach($categories as $category)<option value="{{ $category->id }}">{{ $category->name }}</option>@endforeach</select>
+        <select wire:model.live="filterFormat" class="rounded-xl border border-white/10 bg-slate-900 px-3 py-3 text-sm"><option value="">Semua format</option><option>Digital</option><option>Physical Disc</option><option>Physical Cartridge</option></select>
+        <select wire:model.live="filterStatus" class="rounded-xl border border-white/10 bg-slate-900 px-3 py-3 text-sm"><option value="">Semua status</option><option>Unplayed</option><option>Backlog</option><option>Playing</option><option>Completed</option><option>100% Platinum</option><option>Dropped</option></select>
+    </div>
     @if (session('status'))<div class="mb-5 rounded-xl border border-emerald-400/20 bg-emerald-400/10 p-3 text-sm text-emerald-300">{{ session('status') }}</div>@endif
     <div class="grid gap-6 xl:grid-cols-[.9fr_1.1fr]">
         <section class="h-fit rounded-2xl border border-white/10 bg-white/[.035] p-5 sm:p-6">
