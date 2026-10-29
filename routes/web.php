@@ -1,8 +1,12 @@
 <?php
+use App\\Livewire\\Auth\\Login;
 use App\\Livewire\\InventoryManager;
 use App\\Models\\Game;
 use App\\Models\\UserGameInventory;
+use Illuminate\\Support\\Facades\\Auth;
 use Illuminate\\Support\\Facades\\Route;
+Route::get('/login', Login::class)->name('login');
+Route::post('/logout', function () { Auth::logout(); request()->session()->invalidate(); request()->session()->regenerateToken(); return redirect()->route('login'); })->middleware('auth')->name('logout');
 Route::get('/', function () {
     $user = auth()->user();
     $inventories = $user
