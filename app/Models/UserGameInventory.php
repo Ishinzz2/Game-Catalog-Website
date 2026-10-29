@@ -1,8 +1,8 @@
 <?php
-namespace App\\Models;
-use Illuminate\\Database\\Eloquent\\Factories\\HasFactory;
-use Illuminate\\Database\\Eloquent\\Model;
-use Illuminate\\Database\\Eloquent\\SoftDeletes;
+namespace App\Models;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 class UserGameInventory extends Model {
  use HasFactory, SoftDeletes;
  protected $fillable=['user_id','game_id','user_platform_account_id','format','acquisition_type','purchase_price','purchase_date','store_region','is_installed','physical_location_notes'];
