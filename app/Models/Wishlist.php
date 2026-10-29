@@ -1,7 +1,7 @@
 <?php
-namespace App\\Models;
-use Illuminate\\Database\\Eloquent\\Model;
-use Illuminate\\Database\\Eloquent\\SoftDeletes;
+namespace App\Models;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 class Wishlist extends Model {
     use SoftDeletes;
     protected $fillable = ['user_id','game_id','target_platform_id','desired_max_price','priority','notes'];
