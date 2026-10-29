@@ -20,7 +20,7 @@
 
 ## Area pengembangan lanjutan
 - Integrasi API resmi platform dan sinkronisasi dengan persetujuan pengguna.
-- UI CRUD akun platform dan wishlist.
+- UI CRUD akun platform, registrasi, reset kata sandi, dan verifikasi email.
 - Registrasi, reset kata sandi, serta verifikasi email.
 - Test feature untuk otorisasi, validasi, CRUD, agregasi statistik, dan deteksi kepemilikan ganda.
 - Ganti Tailwind CDN dengan pipeline produksi Vite/Tailwind yang versinya dipatok.
