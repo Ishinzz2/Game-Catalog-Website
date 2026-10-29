@@ -23,11 +23,13 @@ Route::get('/', function () {
     return view('dashboard', compact('inventories','stats'));
 })->name('dashboard');
 Route::get('/games/{game:slug}', function (Game $game) {
-    $game->load(['publisher','developer','categories','tags','inventories.platformAccount.platform','inventories.playSession']);
-    $ownedElsewhere = auth()->check()
-        ? UserGameInventory::where('user_id',auth()->id())->where('game_id',$game->id)->count() > 1
-        : false;
-    return view('games.show', compact('game','ownedElsewhere'));
+    $game->load(['publisher','developer','categories','tags']);
+    $inventories = auth()->check()
+        ? $game->inventories()->where('user_id',auth()->id())
+            ->with(['platformAccount.platform','playSession'])->get()
+        : collect();
+    $ownedElsewhere = $inventories->count() > 1;
+    return view('games.show', compact('game','inventories','ownedElsewhere'));
 })->name('games.show');
 Route::middleware('auth')->group(function () {
     Route::get('/inventory/manage', InventoryManager::class)->name('inventory.manage');
