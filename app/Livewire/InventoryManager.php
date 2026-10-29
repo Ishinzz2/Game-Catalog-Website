@@ -78,7 +78,7 @@ class InventoryManager extends Component {
         return view('livewire.inventory-manager',[
             'games'=>Game::orderBy('title')->get(['id','title']),
             'accounts'=>UserPlatformAccount::where('user_id',auth()->id())->with('platform')->get(),
-            'categories'=>\\App\\Models\\Category::orderBy('name')->get(['id','name']),
+            'categories'=>\App\Models\Category::orderBy('name')->get(['id','name']),
             'inventories'=>UserGameInventory::where('user_id',auth()->id())
                 ->with(['game.categories','platformAccount.platform','playSession'])
                 ->when($this->search,fn($q)=>$q->whereHas('game',fn($g)=>$g->where('title','like','%'.$this->search.'%')))
