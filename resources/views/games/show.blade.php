@@ -1,0 +1,16 @@
+@extends('layouts.app')
+@section('title',$game->title)
+@section('page-heading','Detail game')
+@section('content')
+<div class="overflow-hidden rounded-3xl border border-white/10 bg-white/[.035]">
+    <div class="relative min-h-56 bg-gradient-to-r from-violet-950 via-slate-900 to-cyan-950">
+        @if($game->banner_url)<img src="{{ $game->banner_url }}" alt="Banner {{ $game->title }}" class="absolute inset-0 h-full w-full object-cover opacity-40">@endif
+        <div class="relative p-6 sm:p-10"><a href="{{ route('dashboard') }}" class="text-sm text-cyan-300">← Kembali ke dashboard</a><h2 class="mt-8 text-3xl font-black sm:text-5xl">{{ $game->title }}</h2><p class="mt-3 text-sm text-slate-300">{{ $game->developer?->name ?? 'Developer tidak diketahui' }} @if($game->publisher) · {{ $game->publisher->name }} @endif</p>
+        <div class="mt-5 flex flex-wrap gap-2">@foreach($game->categories as $category)<span class="rounded-full border border-white/15 bg-black/20 px-3 py-1 text-xs">{{ $category->name }}</span>@endforeach @foreach($game->tags as $tag)<span class="rounded-full bg-violet-400/15 px-3 py-1 text-xs text-violet-200">{{ $tag->name }}</span>@endforeach</div></div>
+    </div>
+    <div class="grid gap-8 p-6 sm:p-8 lg:grid-cols-[1.4fr_1fr]"><section><h3 class="text-lg font-bold">Tentang game</h3><p class="mt-3 whitespace-pre-line text-sm leading-7 text-slate-400">{{ $game->description ?: 'Belum ada deskripsi untuk game ini.' }}</p></section>
+    <section><h3 class="text-lg font-bold">Informasi</h3><dl class="mt-4 space-y-3 text-sm"><div class="flex justify-between gap-4 border-b border-white/5 pb-3"><dt class="text-slate-500">Rilis</dt><dd>{{ $game->release_date?->format('d M Y') ?? 'Belum diketahui' }}</dd></div><div class="flex justify-between gap-4 border-b border-white/5 pb-3"><dt class="text-slate-500">Metacritic</dt><dd>{{ $game->metacritic_score ?? '—' }}</dd></div><div class="flex justify-between gap-4 border-b border-white/5 pb-3"><dt class="text-slate-500">ESRB</dt><dd>{{ $game->esrb_rating ?? '—' }}</dd></div></dl></section></div>
+</div>
+@if($ownedElsewhere)<div class="mt-5 rounded-xl border border-amber-400/20 bg-amber-400/10 p-4 text-sm text-amber-200">Perhatian: game ini tercatat lebih dari sekali di library kamu. Periksa kepemilikan lintas platform sebelum membeli lagi.</div>@endif
+<section class="mt-8"><h3 class="text-xl font-bold">Kepemilikan lintas platform</h3><div class="mt-4 space-y-3">@forelse($game->inventories->where('user_id',auth()->id()) as $inventory)<div class="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/[.03] p-4"><div><p class="font-semibold">{{ $inventory->platformAccount?->platform?->name ?? 'Platform tidak diketahui' }}</p><p class="mt-1 text-xs text-slate-500">{{ $inventory->platformAccount?->account_username ?? 'Akun tidak dicantumkan' }} · {{ $inventory->format }}</p></div><div class="text-right"><p class="text-sm">{{ number_format(($inventory->playSession?->playtime_minutes ?? 0)/60,1) }} jam</p><p class="mt-1 text-xs text-slate-500">{{ $inventory->playSession?->completion_status ?? 'Backlog' }}</p></div></div>@empty<p class="rounded-xl border border-dashed border-white/15 p-5 text-sm text-slate-500">Belum ada kepemilikan untuk pengguna ini.</p>@endforelse</div></section>
+@endsection
