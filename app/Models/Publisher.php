@@ -1,7 +1,7 @@
 <?php
-namespace App\\Models;
-use Illuminate\\Database\\Eloquent\\Model;
-use Illuminate\\Database\\Eloquent\\SoftDeletes;
+namespace App\Models;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 class Publisher extends Model {
     use SoftDeletes;
     protected $fillable = ['name','slug','website','country'];
