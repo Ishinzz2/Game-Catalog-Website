@@ -75,17 +75,17 @@ erDiagram
 
 ## Struktur penting
 - `app/Models`: model dan relasi Eloquent.
-- `app/Livewire`: login dan pengelola inventaris.
+- `app/Livewire`: login, pengelola inventaris, dan wishlist.
 - `database/migrations`: skema, foreign key, indeks, soft delete.
 - `database/factories`, `database/seeders`: data uji dan data awal.
 - `resources/views`: layout, dashboard, detail, komponen Blade.
-- `routes/web.php`: dashboard, detail, login/logout, inventaris.
+- `routes/web.php`: dashboard, detail, login/logout, inventaris, dan wishlist.
 
 ## Keamanan dan optimasi
 Relasi inventaris dimuat dengan `with()` untuk mengurangi N+1. Aksi Livewire memvalidasi data pada server dan mengambil item menggunakan batasan `user_id` dari pengguna terautentikasi. Area inventaris dilindungi middleware auth; Laravel menangani CSRF.
 
 ## Batasan prototipe
-Sinkronisasi API Steam/PSN/Xbox/Nintendo, UI manajemen akun platform, registrasi/reset kata sandi, UI wishlist, dan pengujian otomatis belum lengkap. Tailwind CDN digunakan untuk mempermudah prototipe; untuk produksi, gunakan pipeline Tailwind/Vite dengan versi dependensi yang dikunci. Jalankan pengujian dan audit keamanan sebelum deployment.
+Sinkronisasi API Steam/PSN/Xbox/Nintendo, UI manajemen akun platform, registrasi/reset kata sandi, serta pengujian otomatis belum lengkap. Tailwind CDN digunakan untuk mempermudah prototipe; untuk produksi, gunakan pipeline Tailwind/Vite dengan versi dependensi yang dikunci. Jalankan pengujian dan audit keamanan sebelum deployment.
 
 ## Conventional Commits
 Gunakan `feat:`, `fix:`, `refactor:`, `chore:`, dan `docs:`, misalnya `feat: menambahkan filter status backlog`.
