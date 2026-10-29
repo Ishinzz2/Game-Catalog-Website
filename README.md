@@ -9,7 +9,7 @@ GameVault adalah aplikasi katalog dan manajemen inventaris game lintas platform.
 - Status: Unplayed, Backlog, Playing, Completed, 100% Platinum, Dropped.
 - CRUD inventaris reaktif dengan Livewire, validasi server, pencarian instan, dan pembatasan data berdasarkan pengguna.
 - Login, halaman detail game, dan indikator kepemilikan ganda.
-- Wishlist dengan prioritas dan target platform pada skema database.
+- Wishlist interaktif: tambah/hapus item, target platform, harga maksimal, prioritas, dan catatan.
 - Eager loading relasi untuk mengurangi N+1 query.
 - Antarmuka dark gaming dashboard dengan komponen Blade reusable.
 
