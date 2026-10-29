@@ -11,6 +11,10 @@ use Livewire\WithPagination;
 class InventoryManager extends Component {
     use WithPagination;
     public string $search = '';
+    public string $filterPlatform = '';
+    public string $filterStatus = '';
+    public string $filterFormat = '';
+    public string $filterGenre = '';
     public ?int $game_id = null;
     public ?int $user_platform_account_id = null;
     public string $format = 'Digital';
@@ -74,9 +78,14 @@ class InventoryManager extends Component {
         return view('livewire.inventory-manager',[
             'games'=>Game::orderBy('title')->get(['id','title']),
             'accounts'=>UserPlatformAccount::where('user_id',auth()->id())->with('platform')->get(),
+            'categories'=>\\App\\Models\\Category::orderBy('name')->get(['id','name']),
             'inventories'=>UserGameInventory::where('user_id',auth()->id())
-                ->with(['game','platformAccount.platform','playSession'])
+                ->with(['game.categories','platformAccount.platform','playSession'])
                 ->when($this->search,fn($q)=>$q->whereHas('game',fn($g)=>$g->where('title','like','%'.$this->search.'%')))
+                ->when($this->filterPlatform,fn($q)=>$q->where('user_platform_account_id',$this->filterPlatform))
+                ->when($this->filterFormat,fn($q)=>$q->where('format',$this->filterFormat))
+                ->when($this->filterStatus,fn($q)=>$q->whereHas('playSession',fn($s)=>$s->where('completion_status',$this->filterStatus)))
+                ->when($this->filterGenre,fn($q)=>$q->whereHas('game.categories',fn($c)=>$c->where('categories.id',$this->filterGenre)))
                 ->latest()->paginate(8)
         ]);
     }
