@@ -9,7 +9,7 @@ class Game extends Model {
  protected function casts(): array { return ['release_date'=>'date','metacritic_score'=>'integer']; }
  public function publisher(){return $this->belongsTo(Publisher::class);}
  public function developer(){return $this->belongsTo(Developer::class);}
- public function categories(){return $this->belongsToMany(Category::class);}
+ public function categories(){return $this->belongsToMany(Category::class, 'game_category');}
  public function tags(){return $this->belongsToMany(Tag::class);}
  public function inventories(){return $this->hasMany(UserGameInventory::class);}
  public function wishlists(){return $this->hasMany(Wishlist::class);}
