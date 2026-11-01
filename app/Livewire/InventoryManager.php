@@ -1,92 +1,15 @@
 <?php
 namespace App\Livewire;
-use App\Models\Game;
-use App\Models\GamePlaySession;
-use App\Models\UserGameInventory;
-use App\Models\UserPlatformAccount;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
-use Livewire\Component;
-use Livewire\WithPagination;
+use App\Models\Game;use App\Models\GamePlaySession;use App\Models\UserGameInventory;use App\Models\UserPlatformAccount;use Illuminate\Support\Facades\DB;use Illuminate\Validation\Rule;use Livewire\Component;use Livewire\WithPagination;
 class InventoryManager extends Component {
-    use WithPagination;
-    public string $search = '';
-    public string $filterPlatform = '';
-    public string $filterStatus = '';
-    public string $filterFormat = '';
-    public string $filterGenre = '';
-    public ?int $game_id = null;
-    public ?int $user_platform_account_id = null;
-    public string $format = 'Digital';
-    public string $acquisition_type = 'Purchased';
-    public ?string $purchase_price = null;
-    public ?string $purchase_date = null;
-    public string $completion_status = 'Backlog';
-    public int $playtime_minutes = 0;
-    public bool $is_installed = false;
-    public ?int $editingId = null;
-    protected function rules(): array {
-        return [
-            'game_id'=>['required','integer',Rule::exists('games','id')],
-            'user_platform_account_id'=>['required','integer',Rule::exists('user_platform_accounts','id')->where('user_id',auth()->id())],
-            'format'=>['required',Rule::in(['Digital','Physical Disc','Physical Cartridge'])],
-            'acquisition_type'=>['required',Rule::in(['Purchased','Subscription/Game Pass/PS Plus','Gift','Free-to-Play'])],
-            'purchase_price'=>['nullable','numeric','min:0','max:9999999999.99'],
-            'purchase_date'=>['nullable','date','before_or_equal:today'],
-            'completion_status'=>['required',Rule::in(['Unplayed','Backlog','Playing','Completed','100% Platinum','Dropped'])],
-            'playtime_minutes'=>['required','integer','min:0','max:10000000'],
-            'is_installed'=>['boolean']
-        ];
-    }
-    public function save(): void {
-        $data=$this->validate();
-        $user=auth()->user();
-        $account=UserPlatformAccount::where('user_id',$user->id)->findOrFail($data['user_platform_account_id']);
-        DB::transaction(function() use($data,$user,$account) {
-            $inventory= $this->editingId
-                ? UserGameInventory::where('user_id',$user->id)->findOrFail($this->editingId)
-                : new UserGameInventory();
-            $inventory->fill([
-                'user_id'=>$user->id,'game_id'=>$data['game_id'],
-                'user_platform_account_id'=>$account->id,'format'=>$data['format'],
-                'acquisition_type'=>$data['acquisition_type'],'purchase_price'=>$data['purchase_price'] ?? null,
-                'purchase_date'=>$data['purchase_date'] ?? null,'is_installed'=>$data['is_installed']
-            ])->save();
-            GamePlaySession::updateOrCreate(['user_game_inventory_id'=>$inventory->id],[
-                'completion_status'=>$data['completion_status'],'playtime_minutes'=>$data['playtime_minutes']
-            ]);
-        });
-        $this->reset(['game_id','user_platform_account_id','purchase_price','purchase_date','editingId','playtime_minutes','is_installed']);
-        $this->format='Digital'; $this->acquisition_type='Purchased'; $this->completion_status='Backlog';
-        session()->flash('status','Inventaris berhasil disimpan.');
-    }
-    public function edit(int $id): void {
-        $item=UserGameInventory::where('user_id',auth()->id())->with('playSession')->findOrFail($id);
-        $this->editingId=$item->id; $this->game_id=$item->game_id;
-        $this->user_platform_account_id=$item->user_platform_account_id;
-        $this->format=$item->format; $this->acquisition_type=$item->acquisition_type;
-        $this->purchase_price=$item->purchase_price; $this->purchase_date=$item->purchase_date?->format('Y-m-d');
-        $this->is_installed=$item->is_installed;
-        $this->completion_status=$item->playSession?->completion_status ?? 'Backlog';
-        $this->playtime_minutes=$item->playSession?->playtime_minutes ?? 0;
-    }
-    public function delete(int $id): void {
-        UserGameInventory::where('user_id',auth()->id())->findOrFail($id)->delete();
-        session()->flash('status','Item inventaris dihapus.');
-    }
-    public function render() {
-        return view('livewire.inventory-manager',[
-            'games'=>Game::orderBy('title')->get(['id','title']),
-            'accounts'=>UserPlatformAccount::where('user_id',auth()->id())->with('platform')->get(),
-            'categories'=>\App\Models\Category::orderBy('name')->get(['id','name']),
-            'inventories'=>UserGameInventory::where('user_id',auth()->id())
-                ->with(['game.categories','platformAccount.platform','playSession'])
-                ->when($this->search,fn($q)=>$q->whereHas('game',fn($g)=>$g->where('title','like','%'.$this->search.'%')))
-                ->when($this->filterPlatform,fn($q)=>$q->where('user_platform_account_id',$this->filterPlatform))
-                ->when($this->filterFormat,fn($q)=>$q->where('format',$this->filterFormat))
-                ->when($this->filterStatus,fn($q)=>$q->whereHas('playSession',fn($s)=>$s->where('completion_status',$this->filterStatus)))
-                ->when($this->filterGenre,fn($q)=>$q->whereHas('game.categories',fn($c)=>$c->where('categories.id',$this->filterGenre)))
-                ->latest()->paginate(8)
-        ]);
-    }
+ use WithPagination;
+ public string $search='';public string $filterPlatform='';public string $filterStatus='';public string $filterFormat='';public string $filterGenre='';
+ public ?int $game_id=null;public ?int $user_platform_account_id=null;public string $format='Digital';public string $acquisition_type='Purchased';public ?string $purchase_price=null;public ?string $purchase_date=null;public string $completion_status='Backlog';public int $playtime_minutes=0;public bool $is_installed=false;public ?int $editingId=null;
+ public ?int $rating_user=null;public ?string $review_notes=null;public ?string $last_played_at=null;
+ protected function rules():array{return ['game_id'=>['required','integer',Rule::exists('games','id')],'user_platform_account_id'=>['required','integer',Rule::exists('user_platform_accounts','id')->where('user_id',auth()->id())],'format'=>['required',Rule::in(['Digital','Physical Disc','Physical Cartridge'])],'acquisition_type'=>['required',Rule::in(['Purchased','Subscription/Game Pass/PS Plus','Gift','Free-to-Play'])],'purchase_price'=>['nullable','numeric','min:0','max:9999999999.99'],'purchase_date'=>['nullable','date','before_or_equal:today'],'completion_status'=>['required',Rule::in(['Unplayed','Backlog','Playing','Completed','100% Platinum','Dropped'])],'playtime_minutes'=>['required','integer','min:0','max:10000000'],'is_installed'=>['boolean'],'rating_user'=>['nullable','integer','between:1,10'],'review_notes'=>['nullable','string','max:3000'],'last_played_at'=>['nullable','date','before_or_equal:now']];}
+ public function save():void{$data=$this->validate();$user=auth()->user();$account=UserPlatformAccount::where('user_id',$user->id)->findOrFail($data['user_platform_account_id']);DB::transaction(function()use($data,$user,$account){$item=$this->editingId?UserGameInventory::where('user_id',$user->id)->findOrFail($this->editingId):new UserGameInventory();$item->fill(['user_id'=>$user->id,'game_id'=>$data['game_id'],'user_platform_account_id'=>$account->id,'format'=>$data['format'],'acquisition_type'=>$data['acquisition_type'],'purchase_price'=>$data['purchase_price']??null,'purchase_date'=>$data['purchase_date']??null,'is_installed'=>$data['is_installed']])->save();GamePlaySession::updateOrCreate(['user_game_inventory_id'=>$item->id],['completion_status'=>$data['completion_status'],'playtime_minutes'=>$data['playtime_minutes'],'rating_user'=>$data['rating_user']??null,'review_notes'=>$data['review_notes']??null,'last_played_at'=>$data['last_played_at']?\Illuminate\Support\Carbon::parse($data['last_played_at']):null]);});$this->resetForm();session()->flash('status','Inventaris berhasil disimpan.');}
+ public function edit(int $id):void{$item=UserGameInventory::where('user_id',auth()->id())->with('playSession')->findOrFail($id);$this->editingId=$item->id;$this->game_id=$item->game_id;$this->user_platform_account_id=$item->user_platform_account_id;$this->format=$item->format;$this->acquisition_type=$item->acquisition_type;$this->purchase_price=$item->purchase_price;$this->purchase_date=$item->purchase_date?->format('Y-m-d');$this->is_installed=$item->is_installed;$this->completion_status=$item->playSession?->completion_status??'Backlog';$this->playtime_minutes=$item->playSession?->playtime_minutes??0;$this->rating_user=$item->playSession?->rating_user;$this->review_notes=$item->playSession?->review_notes;$this->last_played_at=$item->playSession?->last_played_at?->format('Y-m-d\TH:i');}
+ public function resetForm():void{$this->reset(['game_id','user_platform_account_id','purchase_price','purchase_date','editingId','playtime_minutes','is_installed','rating_user','review_notes','last_played_at']);$this->format='Digital';$this->acquisition_type='Purchased';$this->completion_status='Backlog';}
+ public function delete(int $id):void{UserGameInventory::where('user_id',auth()->id())->findOrFail($id)->delete();session()->flash('status','Item inventaris dihapus.');}
+ public function render(){return view('livewire.inventory-manager',['games'=>Game::orderBy('title')->get(['id','title']),'accounts'=>UserPlatformAccount::where('user_id',auth()->id())->with('platform')->get(),'categories'=>\App\Models\Category::orderBy('name')->get(['id','name']),'inventories'=>UserGameInventory::where('user_id',auth()->id())->with(['game.categories','platformAccount.platform','playSession'])->when($this->search,fn($q)=>$q->whereHas('game',fn($g)=>$g->where('title','like','%'.$this->search.'%')))->when($this->filterPlatform,fn($q)=>$q->where('user_platform_account_id',$this->filterPlatform))->when($this->filterFormat,fn($q)=>$q->where('format',$this->filterFormat))->when($this->filterStatus,fn($q)=>$q->whereHas('playSession',fn($s)=>$s->where('completion_status',$this->filterStatus)))->when($this->filterGenre,fn($q)=>$q->whereHas('game.categories',fn($c)=>$c->where('categories.id',$this->filterGenre)))->latest()->paginate(8)]);}
 }
