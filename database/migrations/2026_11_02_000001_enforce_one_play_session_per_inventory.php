@@ -20,6 +20,7 @@ return new class extends Migration
         foreach ($duplicates as $inventoryId) {
             $keepId = DB::table('game_play_sessions')
                 ->where('user_game_inventory_id', $inventoryId)
+                ->whereNull('deleted_at')
                 ->orderByDesc('id')
                 ->value('id');
 
