@@ -1,7 +1,7 @@
 <?php
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\\Database\\Migrations\\Migration;
+use Illuminate\\Database\\Schema\\Blueprint;
+use Illuminate\\Support\\Facades\\Schema;
 return new class extends Migration {
     public function up(): void {
         Schema::create('users', function (Blueprint $table) {
@@ -51,7 +51,7 @@ return new class extends Migration {
             $table->string('esrb_rating',20)->nullable(); $table->timestamps(); $table->softDeletes();
             $table->index(['title']); $table->index(['release_date','metacritic_score']);
         });
-        Schema::create('game_category', function(Blueprint $table) {
+        Schema::create('category_game', function(Blueprint $table) {
             $table->foreignId('game_id')->constrained()->cascadeOnDelete();
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->primary(['game_id','category_id']);
@@ -93,7 +93,7 @@ return new class extends Migration {
     public function down(): void {
         Schema::dropIfExists('wishlists'); Schema::dropIfExists('game_play_sessions');
         Schema::dropIfExists('user_game_inventories'); Schema::dropIfExists('game_tag');
-        Schema::dropIfExists('game_category'); Schema::dropIfExists('games');
+        Schema::dropIfExists('category_game'); Schema::dropIfExists('games');
         Schema::dropIfExists('user_platform_accounts'); Schema::dropIfExists('platforms');
         Schema::dropIfExists('tags'); Schema::dropIfExists('categories');
         Schema::dropIfExists('developers'); Schema::dropIfExists('publishers'); Schema::dropIfExists('users');
