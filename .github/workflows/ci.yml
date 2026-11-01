@@ -13,13 +13,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up PHP
-        uses: shivammathai/setup-php@v2
-        with:
-          php-version: "8.3"
-          extensions: mbstring, pdo_sqlite, sqlite3, dom, xml, curl, fileinfo
-          coverage: none
-          tools: composer:v2
+      - name: Verify runner toolchain
+        run: |
+          php -r "if (PHP_VERSION_ID < 80300) { fwrite(STDERR, 'PHP 8.3+ is required'.PHP_EOL); exit(1); }"
+          php -m | grep -qi '^pdo_sqlite$'
+          php -m | grep -qi '^mbstring$'
+          composer --version
+          node -e "const [major, minor] = process.versions.node.split('.').map(Number); if (!(major > 22 || (major === 22 && minor >= 12))) { console.error('Node.js 22.12+ is required'); process.exit(1); }"
+          npm --version
 
       - name: Install PHP dependencies
         run: composer install --no-interaction --prefer-dist
@@ -31,11 +32,6 @@ jobs:
         env:
           APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
         run: php artisan test
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
 
       - name: Install frontend dependencies
         run: npm install
