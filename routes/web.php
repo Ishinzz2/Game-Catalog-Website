@@ -5,6 +5,9 @@ use App\Livewire\InventoryManager;
 use App\Livewire\WishlistManager;
 use App\Models\Game;
 use App\Models\UserGameInventory;
+use App\Models\User;
+use App\Models\Platform;
+use App\Models\UserPlatformAccount;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 Route::get('/login', Login::class)->name('login');
@@ -29,6 +32,7 @@ Route::middleware('auth')->group(function(){
  Route::get('/platform-accounts',fn()=>view('platform-accounts'))->name('platform-accounts.index');
 });
 Route::middleware(['auth','admin'])->prefix('admin')->name('admin.')->group(function(){
+ Route::get('/',fn()=>view('admin.dashboard',['stats'=>['users'=>User::count(),'games'=>Game::count(),'platforms'=>Platform::count(),'accounts'=>UserPlatformAccount::count()]]))->name('dashboard');
  Route::get('/games',fn()=>view('admin.games'))->name('games.index');
  Route::get('/integrations',fn()=>view('admin.integrations'))->name('integrations.index');
 });
