@@ -4,37 +4,37 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void {
-        Schema::create('users', function (Blueprint $table) {
+        if (! Schema::hasTable('users')) Schema::create('users', function (Blueprint $table) {
             $table->id(); $table->string('name'); $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable(); $table->string('password');
             $table->string('theme_preference')->default('dark'); $table->string('default_currency',3)->default('IDR');
             $table->rememberToken(); $table->timestamps(); $table->softDeletes();
         });
-        Schema::create('publishers', function(Blueprint $table) {
+        if (! Schema::hasTable('publishers')) Schema::create('publishers', function(Blueprint $table) {
             $table->id(); $table->string('name'); $table->string('slug')->unique();
             $table->string('website')->nullable(); $table->string('country',100)->nullable();
             $table->timestamps(); $table->softDeletes();
         });
-        Schema::create('developers', function(Blueprint $table) {
+        if (! Schema::hasTable('developers')) Schema::create('developers', function(Blueprint $table) {
             $table->id(); $table->string('name'); $table->string('slug')->unique();
             $table->string('website')->nullable(); $table->string('country',100)->nullable();
             $table->timestamps(); $table->softDeletes();
         });
-        Schema::create('categories', function(Blueprint $table) {
+        if (! Schema::hasTable('categories')) Schema::create('categories', function(Blueprint $table) {
             $table->id(); $table->foreignId('parent_id')->nullable()->constrained('categories')->nullOnDelete();
             $table->string('name'); $table->string('slug')->unique(); $table->text('description')->nullable();
             $table->timestamps(); $table->index(['parent_id','name']);
         });
-        Schema::create('tags', function(Blueprint $table) {
+        if (! Schema::hasTable('tags')) Schema::create('tags', function(Blueprint $table) {
             $table->id(); $table->string('name')->unique(); $table->string('slug')->unique();
             $table->text('description')->nullable(); $table->timestamps();
         });
-        Schema::create('platforms', function(Blueprint $table) {
+        if (! Schema::hasTable('platforms')) Schema::create('platforms', function(Blueprint $table) {
             $table->id(); $table->string('name'); $table->string('code')->unique();
             $table->string('icon_path')->nullable(); $table->string('company_name')->nullable();
             $table->timestamps();
         });
-        Schema::create('user_platform_accounts', function(Blueprint $table) {
+        if (! Schema::hasTable('user_platform_accounts')) Schema::create('user_platform_accounts', function(Blueprint $table) {
             $table->id(); $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('platform_id')->constrained()->restrictOnDelete();
             $table->string('account_username')->nullable(); $table->string('account_id_external')->nullable();
@@ -42,7 +42,7 @@ return new class extends Migration {
             $table->timestamps(); $table->softDeletes();
             $table->index(['user_id','platform_id']); $table->unique(['user_id','platform_id','account_username']);
         });
-        Schema::create('games', function(Blueprint $table) {
+        if (! Schema::hasTable('games')) Schema::create('games', function(Blueprint $table) {
             $table->id(); $table->foreignId('publisher_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('developer_id')->nullable()->constrained()->nullOnDelete();
             $table->string('title'); $table->string('slug')->unique(); $table->longText('description')->nullable();
@@ -51,17 +51,17 @@ return new class extends Migration {
             $table->string('esrb_rating',20)->nullable(); $table->timestamps(); $table->softDeletes();
             $table->index(['title']); $table->index(['release_date','metacritic_score']);
         });
-        Schema::create('category_game', function(Blueprint $table) {
+        if (! Schema::hasTable('category_game')) Schema::create('category_game', function(Blueprint $table) {
             $table->foreignId('game_id')->constrained()->cascadeOnDelete();
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->primary(['game_id','category_id']);
         });
-        Schema::create('game_tag', function(Blueprint $table) {
+        if (! Schema::hasTable('game_tag')) Schema::create('game_tag', function(Blueprint $table) {
             $table->foreignId('game_id')->constrained()->cascadeOnDelete();
             $table->foreignId('tag_id')->constrained()->cascadeOnDelete();
             $table->primary(['game_id','tag_id']);
         });
-        Schema::create('user_game_inventories', function(Blueprint $table) {
+        if (! Schema::hasTable('user_game_inventories')) Schema::create('user_game_inventories', function(Blueprint $table) {
             $table->id(); $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('game_id')->constrained()->cascadeOnDelete();
             $table->foreignId('user_platform_account_id')->constrained()->cascadeOnDelete();
@@ -72,7 +72,7 @@ return new class extends Migration {
             $table->string('physical_location_notes')->nullable(); $table->timestamps(); $table->softDeletes();
             $table->index(['user_id','game_id']); $table->index(['user_id','user_platform_account_id']);
         });
-        Schema::create('game_play_sessions', function(Blueprint $table) {
+        if (! Schema::hasTable('game_play_sessions')) Schema::create('game_play_sessions', function(Blueprint $table) {
             $table->id(); $table->foreignId('user_game_inventory_id')->constrained()->cascadeOnDelete();
             $table->unsignedInteger('playtime_minutes')->default(0);
             $table->enum('completion_status',['Unplayed','Backlog','Playing','Completed','100% Platinum','Dropped'])->default('Backlog');
@@ -80,7 +80,7 @@ return new class extends Migration {
             $table->timestamp('last_played_at')->nullable(); $table->timestamps(); $table->softDeletes();
             $table->index(['completion_status','last_played_at']);
         });
-        Schema::create('wishlists', function(Blueprint $table) {
+        if (! Schema::hasTable('wishlists')) Schema::create('wishlists', function(Blueprint $table) {
             $table->id(); $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('game_id')->constrained()->cascadeOnDelete();
             $table->foreignId('target_platform_id')->nullable()->constrained('platforms')->nullOnDelete();
@@ -96,6 +96,6 @@ return new class extends Migration {
         Schema::dropIfExists('category_game'); Schema::dropIfExists('games');
         Schema::dropIfExists('user_platform_accounts'); Schema::dropIfExists('platforms');
         Schema::dropIfExists('tags'); Schema::dropIfExists('categories');
-        Schema::dropIfExists('developers'); Schema::dropIfExists('publishers'); Schema::dropIfExists('users');
+        Schema::dropIfExists('developers'); Schema::dropIfExists('publishers');
     }
 };
