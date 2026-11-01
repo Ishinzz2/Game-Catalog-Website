@@ -22,7 +22,11 @@ return new class extends Migration
                 ->where('user_game_inventory_id', $inventoryId)
                 ->whereNull('deleted_at')
                 ->orderByDesc('id')
-                ->value('id');
+                ->value('id')
+                ?? DB::table('game_play_sessions')
+                    ->where('user_game_inventory_id', $inventoryId)
+                    ->orderByDesc('id')
+                    ->value('id');
 
             DB::table('game_play_sessions')
                 ->where('user_game_inventory_id', $inventoryId)
