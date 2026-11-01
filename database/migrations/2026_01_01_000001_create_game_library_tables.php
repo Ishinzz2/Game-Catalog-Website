@@ -51,7 +51,7 @@ return new class extends Migration {
             $table->string('esrb_rating',20)->nullable(); $table->timestamps(); $table->softDeletes();
             $table->index(['title']); $table->index(['release_date','metacritic_score']);
         });
-        if (! Schema::hasTable('category_game')) Schema::create('category_game', function(Blueprint $table) {
+        if (! Schema::hasTable('category_game') && ! Schema::hasTable('game_category')) Schema::create('category_game', function(Blueprint $table) {
             $table->foreignId('game_id')->constrained()->cascadeOnDelete();
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->primary(['game_id','category_id']);
