@@ -30,4 +30,5 @@ Route::middleware('auth')->group(function(){
 });
 Route::middleware(['auth','admin'])->prefix('admin')->name('admin.')->group(function(){
  Route::get('/games',fn()=>view('admin.games'))->name('games.index');
+ Route::get('/integrations',fn()=>view('admin.integrations'))->name('integrations.index');
 });
