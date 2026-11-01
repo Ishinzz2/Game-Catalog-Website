@@ -14,7 +14,7 @@ GameVault adalah aplikasi katalog dan manajemen inventaris game lintas platform.
 - Antarmuka dark gaming dashboard dengan komponen Blade reusable.
 
 ## Teknologi dan prasyarat
-PHP 8.2+, Composer 2, Node.js/npm, MySQL 8+ atau PostgreSQL; Laravel 11, Livewire 3, Blade, Tailwind CSS.
+PHP 8.3+, Composer 2, Node.js/npm, MySQL 8+ atau PostgreSQL; Laravel 13, Livewire 4, Blade, Tailwind CSS 4, dan Vite 7.
 
 ## Instalasi lokal
 1. Klon repositori:
@@ -22,7 +22,7 @@ PHP 8.2+, Composer 2, Node.js/npm, MySQL 8+ atau PostgreSQL; Laravel 11, Livewir
    git clone https://github.com/Ishinzz2/Game-Catalog-Website.git
    cd Game-Catalog-Website
    ```
-2. Pasang dependensi:
+2. Pasang dependensi PHP dan JavaScript:
    ```bash
    composer install
    npm install
@@ -37,9 +37,21 @@ PHP 8.2+, Composer 2, Node.js/npm, MySQL 8+ atau PostgreSQL; Laravel 11, Livewir
    ```bash
    php artisan migrate --seed
    ```
-6. Jalankan `npm run dev` dan `php artisan serve`, lalu buka `http://127.0.0.1:8000`.
+6. **Bangun aset frontend sebelum membuka aplikasi:**
+   ```bash
+   npm run build
+   ```
+   Perintah ini menghasilkan `public/build/manifest.json` yang dibutuhkan directive `@vite` di Blade. Folder hasil build tidak disimpan di Git; jalankan ulang perintah ini setelah clone atau setiap kali dependensi/aset frontend berubah.
+7. Jalankan server Laravel:
+   ```bash
+   php artisan serve
+   ```
+   Untuk pengembangan frontend dengan hot reload, jalankan `npm run dev` di terminal kedua (sebagai pengganti `npm run build` selama sesi development), lalu biarkan proses Vite tetap aktif.
 
 Akun demo seeder: `demo@gamevault.test` / `password`. Ganti kredensial demo sebelum penggunaan nyata.
+
+## Troubleshooting Vite
+Jika muncul `ViteManifestNotFoundException` atau pesan `Vite manifest not found`, pastikan dependensi Node sudah terpasang lalu jalankan `npm run build`. Jika memakai mode development, pastikan `npm run dev` masih berjalan. Jangan membuat `public/build/manifest.json` secara manual.
 
 ## ERD tekstual
 ```mermaid
@@ -85,7 +97,7 @@ erDiagram
 Relasi inventaris dimuat dengan `with()` untuk mengurangi N+1. Aksi Livewire memvalidasi data pada server dan mengambil item menggunakan batasan `user_id` dari pengguna terautentikasi. Area inventaris dilindungi middleware auth; Laravel menangani CSRF.
 
 ## Batasan prototipe
-Sinkronisasi API Steam/PSN/Xbox/Nintendo, UI manajemen akun platform, registrasi/reset kata sandi, serta pengujian otomatis belum lengkap. Tailwind CDN digunakan untuk mempermudah prototipe; untuk produksi, gunakan pipeline Tailwind/Vite dengan versi dependensi yang dikunci. Jalankan pengujian dan audit keamanan sebelum deployment.
+Sinkronisasi API Steam/PSN/Xbox/Nintendo, UI manajemen akun platform, registrasi/reset kata sandi, serta pengujian otomatis belum lengkap. Jalankan pengujian dan audit keamanan sebelum deployment.
 
 ## Conventional Commits
 Gunakan `feat:`, `fix:`, `refactor:`, `chore:`, dan `docs:`, misalnya `feat: menambahkan filter status backlog`.
