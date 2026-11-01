@@ -14,7 +14,7 @@ GameVault adalah aplikasi katalog dan manajemen inventaris game lintas platform.
 - Antarmuka dark gaming dashboard dengan komponen Blade reusable.
 
 ## Teknologi dan prasyarat
-PHP 8.3+, Composer 2, Node.js/npm, MySQL 8+ atau PostgreSQL; Laravel 13, Livewire 4, Blade, Tailwind CSS 4, dan Vite 7.
+PHP 8.3+, Composer 2, Node.js/npm, MySQL 8+ atau PostgreSQL; Laravel 13, Livewire 4, Blade, Tailwind CSS 4, dan Vite 8.
 
 ## Instalasi lokal
 1. Klon repositori:
