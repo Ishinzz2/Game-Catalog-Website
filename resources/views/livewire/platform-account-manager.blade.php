@@ -1,0 +1,10 @@
+<div class="space-y-6">
+<div><h2 class="text-xl font-bold">Akun Platform Saya</h2><p class="text-sm text-slate-400">Simpan identitas akun platform. Fitur ini belum melakukan autentikasi atau sinkronisasi otomatis ke penyedia.</p></div>
+<form wire:submit="save" class="grid gap-3 rounded-2xl border border-white/10 bg-slate-900 p-5 md:grid-cols-2">
+<select wire:model="platform_id" class="rounded-xl border border-white/10 bg-slate-950 p-3"><option value="">Pilih platform</option>@foreach($platforms as $platform)<option value="{{$platform->id}}">{{$platform->name}}</option>@endforeach</select>
+<input wire:model="account_username" placeholder="Username akun (opsional)" class="rounded-xl border border-white/10 bg-slate-950 p-3">
+<input wire:model="account_id_external" placeholder="ID eksternal (opsional)" class="rounded-xl border border-white/10 bg-slate-950 p-3">
+<button class="rounded-xl bg-violet-500 p-3 font-semibold md:col-span-2">{{$editingId?'Simpan perubahan':'Tambah akun platform'}}</button>
+</form>
+<div class="overflow-hidden rounded-2xl border border-white/10"><table class="w-full text-left text-sm"><thead class="bg-slate-900 text-slate-400"><tr><th class="p-3">Platform</th><th class="p-3">Username</th><th class="p-3">ID eksternal</th><th class="p-3">Aksi</th></tr></thead><tbody>@forelse($accounts as $account)<tr class="border-t border-white/10"><td class="p-3">{{$account->platform->name}}</td><td class="p-3">{{$account->account_username ?: '—'}}</td><td class="p-3">{{$account->account_id_external ?: '—'}}</td><td class="space-x-3 p-3"><button wire:click="edit({{$account->id}})" class="text-cyan-300">Edit</button><button wire:click="delete({{$account->id}})" wire:confirm="Hapus akun platform ini?" class="text-red-300">Hapus</button></td></tr>@empty<tr><td colspan="4" class="p-5 text-center text-slate-500">Belum ada akun platform.</td></tr>@endforelse</tbody></table></div>
+</div>
