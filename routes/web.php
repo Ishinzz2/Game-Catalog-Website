@@ -34,4 +34,5 @@ Route::middleware('auth')->group(function(){
 Route::middleware(['auth','admin'])->prefix('admin')->name('admin.')->group(function(){
  Route::get('/',fn()=>view('admin.dashboard',['stats'=>['users'=>User::count(),'games'=>Game::count(),'platforms'=>Platform::count(),'accounts'=>UserPlatformAccount::count()]]))->name('dashboard');
  Route::get('/games',fn()=>view('admin.games'))->name('games.index');
+ Route::get('/integrations',fn()=>view('admin.integrations'))->name('integrations.index');
 });
