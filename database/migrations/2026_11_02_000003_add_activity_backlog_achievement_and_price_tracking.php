@@ -8,6 +8,12 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('game_play_sessions', function (Blueprint $table): void {
+            // MySQL requires an index for the user_game_inventory_id foreign key.
+            // Add a non-unique replacement before dropping the unique index.
+            $table->index('user_game_inventory_id', 'game_play_sessions_inventory_index');
+        });
+
+        Schema::table('game_play_sessions', function (Blueprint $table): void {
             $table->dropUnique('game_play_sessions_inventory_unique');
         });
 
@@ -64,6 +70,7 @@ return new class extends Migration {
         // after duplicate summary rows have been removed by the application.
         Schema::table('game_play_sessions', function (Blueprint $table): void {
             $table->unique('user_game_inventory_id', 'game_play_sessions_inventory_unique');
+            $table->dropIndex('game_play_sessions_inventory_index');
         });
     }
 };
