@@ -20,9 +20,15 @@ class PlatformAccountManager extends Component {
     ];}
     public function save():void {
         $data=$this->validate();
-        $account=$this->editingId
-            ? UserPlatformAccount::where('user_id',auth()->id())->findOrFail($this->editingId)
-            : new UserPlatformAccount(['user_id'=>auth()->id()]);
+        $account = $this->editingId
+            ? UserPlatformAccount::where('user_id', auth()->id())->findOrFail($this->editingId)
+            : new UserPlatformAccount(['user_id' => auth()->id()]);
+
+        if ($this->editingId && $account->platform_id !== (int) $data['platform_id'] && $account->inventories()->withTrashed()->exists()) {
+            $this->addError('platform_id', 'Platform akun tidak dapat diubah selama masih terhubung dengan inventaris. Pindahkan game terlebih dahulu.');
+            return;
+        }
+
         $account->fill($data)->save();
         $this->reset(['platform_id','account_username','account_id_external','editingId']);
         session()->flash('status','Akun platform berhasil disimpan.');
@@ -34,7 +40,7 @@ class PlatformAccountManager extends Component {
     }
     public function delete(int $id):void {
         $account = UserPlatformAccount::where('user_id', auth()->id())->findOrFail($id);
-        if ($account->inventories()->exists()) {
+        if ($account->inventories()->withTrashed()->exists()) {
             $this->addError('delete-'.$id, 'Akun ini masih digunakan oleh inventaris. Pindahkan game ke akun lain sebelum menghapusnya.');
             return;
         }
