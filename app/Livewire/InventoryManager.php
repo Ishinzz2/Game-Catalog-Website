@@ -20,6 +20,10 @@ class InventoryManager extends Component
     public string $filterFormat = '';
     public string $filterGenre = '';
     public string $filterBacklogPriority = '';
+    public string $filterInstalled = '';
+    public string $filterAcquisition = '';
+    public string $sortBy = 'recent';
+    public string $viewMode = 'grid';
 
     public ?int $game_id = null;
     public ?int $user_platform_account_id = null;
@@ -152,7 +156,13 @@ class InventoryManager extends Component
             ->when($this->filterGenre, fn ($q) => $q->whereHas('game.categories', fn ($c) => $c->where('categories.id', $this->filterGenre)))
             ->when($this->filterBacklogPriority, fn ($q) => $q->where('backlog_priority', $this->filterBacklogPriority)
                 ->whereHas('playSession', fn ($s) => $s->whereIn('completion_status', ['Unplayed', 'Backlog'])))
-            ->latest()->paginate(8);
+            ->when($this->filterInstalled !== '', fn ($q) => $q->where('is_installed', $this->filterInstalled === '1'))
+            ->when($this->filterAcquisition, fn ($q) => $q->where('acquisition_type', $this->filterAcquisition))
+            ->when($this->sortBy === 'title', fn ($q) => $q->join('games as sort_games', 'sort_games.id', '=', 'user_game_inventories.game_id')->orderBy('sort_games.title')->select('user_game_inventories.*'))
+            ->when($this->sortBy === 'playtime', fn ($q) => $q->orderBy(GamePlaySession::select('playtime_minutes')->whereColumn('user_game_inventory_id', 'user_game_inventories.id')->limit(1), 'desc'))
+            ->when($this->sortBy === 'purchase_price', fn ($q) => $q->orderByDesc('purchase_price'))
+            ->when($this->sortBy === 'recent', fn ($q) => $q->orderByDesc('created_at'))
+            ->paginate(12);
 
         return view('livewire.inventory-manager', [
             'games' => Game::orderBy('title')->get(['id', 'title']),
