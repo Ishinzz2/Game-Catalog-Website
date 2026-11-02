@@ -25,6 +25,11 @@ class InventoryManager extends Component
     public string $sortBy = 'recent';
     public string $viewMode = 'grid';
 
+    public function updated($property): void
+    {
+        if (in_array($property, ['search', 'filterPlatform', 'filterStatus', 'filterFormat', 'filterGenre', 'filterBacklogPriority', 'filterInstalled', 'filterAcquisition', 'sortBy'], true)) $this->resetPage();
+    }
+
     public ?int $game_id = null;
     public ?int $user_platform_account_id = null;
     public string $format = 'Digital';
