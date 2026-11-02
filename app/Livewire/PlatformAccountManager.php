@@ -4,9 +4,11 @@ use App\Models\Platform;
 use App\Models\UserPlatformAccount;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
+use Livewire\WithPagination;
 class PlatformAccountManager extends Component {
     use WithPagination;
     public string $search = '';
+    public function updated($property): void { if (in_array($property, ['search'], true)) $this->resetPage(); }
     public ?int $platform_id=null;
     public ?string $account_username=null;
     public ?string $account_id_external=null;
