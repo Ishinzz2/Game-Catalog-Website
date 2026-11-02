@@ -31,7 +31,7 @@ class GameCatalogManager extends Component {
         'banner_url'=>['nullable','url','max:2048'],
         'release_date'=>['nullable','date'],
         'metacritic_score'=>['nullable','integer','between:0,100'],
-        'esrb_rating'=>['nullable','string','max:20'],
+        'esrb_rating'=>['nullable',Rule::in(['RP','EC','E','E10+','T','M','AO'])],
         'categoryIds'=>['array'],
         'categoryIds.*'=>['integer','exists:categories,id'],
     ];}
