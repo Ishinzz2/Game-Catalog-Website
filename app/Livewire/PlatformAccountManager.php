@@ -41,6 +41,6 @@ class PlatformAccountManager extends Component {
     }
     public function render(){return view('livewire.platform-account-manager',[
         'platforms'=>Platform::orderBy('name')->get(),
-        'accounts'=>UserPlatformAccount::where('user_id',auth()->id())->with('platform')->withCount('inventories')->when($this->search, fn ($q) => $q->whereHas('platform', fn ($p) => $p->where('name', 'like', '%'.$this->search.'%'))->orWhere('account_username', 'like', '%'.$this->search.'%')->orWhere('account_id_external', 'like', '%'.$this->search.'%'))->latest()->paginate(8)
+        'accounts'=>UserPlatformAccount::where('user_id',auth()->id())->with('platform')->withCount('inventories')->when($this->search, fn ($q) => $q->where(function ($searchQuery) { $searchQuery->whereHas('platform', fn ($p) => $p->where('name', 'like', '%'.$this->search.'%'))->orWhere('account_username', 'like', '%'.$this->search.'%')->orWhere('account_id_external', 'like', '%'.$this->search.'%'); }))->latest()->paginate(8)
     ]);}
 }
