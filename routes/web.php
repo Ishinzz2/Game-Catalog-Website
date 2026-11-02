@@ -4,9 +4,7 @@ use App\Livewire\Auth\Register;
 use App\Livewire\InventoryManager;
 use App\Livewire\WishlistManager;
 use App\Livewire\PlayActivityManager;
-use App\Livewire\Admin\CategoryManager;
-use App\Livewire\Admin\PlatformManager;
-use App\Livewire\Admin\UserManager;
+use App\Models\Category;
 use App\Models\Game;
 use App\Models\UserGameInventory;
 use App\Models\User;
@@ -21,6 +19,7 @@ Route::post('/logout', function () {
     Auth::logout();
     request()->session()->invalidate();
     request()->session()->regenerateToken();
+
     return redirect()->route('login');
 })->middleware('auth')->name('logout');
 
@@ -31,7 +30,12 @@ Route::get('/', function () {
         ->latest()->take(8)->get() : collect();
     $stats = [
         'games' => $user ? UserGameInventory::where('user_id', $user->id)->count() : 0,
-        'minutes' => $user ? (int) $user->gameInventories()->withSum('playSession', 'playtime_minutes')->get()->sum('play_session_sum_playtime_minutes') : 0,
+        'minutes' => $user
+            ? (int) $user->gameInventories()
+                ->withSum('playSession', 'playtime_minutes')
+                ->get()
+                ->sum('play_session_sum_playtime_minutes')
+            : 0,
         'value' => $user ? (float) UserGameInventory::where('user_id', $user->id)->sum('purchase_price') : 0,
         'completed' => $user ? $user->gameInventories()->whereHas('playSession', fn ($q) => $q->whereIn('completion_status', ['Completed', '100% Platinum']))->count() : 0,
     ];
@@ -39,9 +43,13 @@ Route::get('/', function () {
 })->name('dashboard');
 
 Route::get('/games', function () {
-    return view('games.index', ['games' => Game::query()->with(['categories'])
-        ->when(request('q'), fn ($q, $term) => $q->where('title', 'like', '%'.$term.'%'))
-        ->orderBy('title')->paginate(12)]);
+    return view('games.index', [
+        'games' => Game::query()
+            ->with('categories')
+            ->when(request('q'), fn ($query, $term) => $query->where('title', 'like', '%'.$term.'%'))
+            ->orderBy('title')
+            ->paginate(12),
+    ]);
 })->name('games.index');
 
 Route::get('/games/{game:slug}', function (Game $game) {
@@ -59,7 +67,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/recommendations', function () {
         $user = auth()->user();
 
-        $preferredGenres = \App\Models\Category::query()
+        $preferredGenres = Category::query()
             ->withCount(['games as owned_games_count' => fn ($games) => $games->whereHas('inventories', fn ($inventories) => $inventories->where('user_id', $user->id))])
             ->having('owned_games_count', '>', 0)
             ->orderByDesc('owned_games_count')
