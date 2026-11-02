@@ -12,6 +12,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class WishlistManager extends Component
 {
@@ -20,6 +21,11 @@ class WishlistManager extends Component
     public string $search = '';
     public string $filterPriority = '';
     public string $filterPlatform = '';
+
+    public function updated($property): void
+    {
+        if (in_array($property, ['search', 'filterPriority', 'filterPlatform'], true)) $this->resetPage();
+    }
     public ?int $game_id = null;
     public ?int $target_platform_id = null;
     public ?string $desired_max_price = null;
