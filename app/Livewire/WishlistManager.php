@@ -15,6 +15,11 @@ use Livewire\Component;
 
 class WishlistManager extends Component
 {
+    use WithPagination;
+
+    public string $search = '';
+    public string $filterPriority = '';
+    public string $filterPlatform = '';
     public ?int $game_id = null;
     public ?int $target_platform_id = null;
     public ?string $desired_max_price = null;
@@ -129,7 +134,7 @@ class WishlistManager extends Component
             'games' => Game::orderBy('title')->get(['id', 'title']),
             'platforms' => Platform::orderBy('name')->get(),
             'accounts' => UserPlatformAccount::where('user_id', auth()->id())->with('platform')->get(),
-            'items' => Wishlist::where('user_id', auth()->id())->with(['game', 'targetPlatform', 'priceHistories' => fn ($query) => $query->latest('recorded_at')])->latest()->get(),
+            'items' => Wishlist::where('user_id', auth()->id())->with(['game', 'targetPlatform', 'priceHistories' => fn ($query) => $query->latest('recorded_at')->limit(5)])->when($this->search, fn ($q) => $q->whereHas('game', fn ($g) => $g->where('title', 'like', '%'.$this->search.'%')))->when($this->filterPriority, fn ($q) => $q->where('priority', $this->filterPriority))->when($this->filterPlatform, fn ($q) => $q->where('target_platform_id', $this->filterPlatform))->latest()->paginate(8),
         ])->layout('layouts.app', ['pageHeading' => 'Wishlist Saya']);
     }
 }
