@@ -40,7 +40,7 @@ return new class extends Migration {
             $table->string('account_username')->nullable(); $table->string('account_id_external')->nullable();
             $table->boolean('is_connected')->default(false); $table->timestamp('last_synced_at')->nullable();
             $table->timestamps(); $table->softDeletes();
-            $table->index(['user_id','platform_id']); $table->unique(['user_id','platform_id','account_username']);
+            $table->index(['user_id','platform_id']); $table->unique(['user_id','platform_id','account_username'], 'upa_user_platform_account_unique');
         });
         if (! Schema::hasTable('games')) Schema::create('games', function(Blueprint $table) {
             $table->id(); $table->foreignId('publisher_id')->nullable()->constrained()->nullOnDelete();
