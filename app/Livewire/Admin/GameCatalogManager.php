@@ -17,7 +17,8 @@ class GameCatalogManager extends Component {
     public ?string $release_date=null;
     public ?string $metacritic_score=null;
     public ?string $esrb_rating=null;
-    public function updatedTitle():void { if(!$this->editingId)$this->slug=Str::slug($this->title); }
+    public function updatedTitle():void {
+        $this->authorizeAdmin(); if(!$this->editingId)$this->slug=Str::slug($this->title); }
     protected function rules():array{return [
         'title'=>['required','string','max:255'],
         'slug'=>['required','string','max:255',Rule::unique('games','slug')->ignore($this->editingId)],
@@ -29,6 +30,7 @@ class GameCatalogManager extends Component {
         'esrb_rating'=>['nullable','string','max:20'],
     ];}
     public function save():void {
+        $this->authorizeAdmin();
         $data=$this->validate();
         $game=$this->editingId?Game::findOrFail($this->editingId):new Game();
         $game->fill($data)->save();
@@ -36,12 +38,16 @@ class GameCatalogManager extends Component {
         session()->flash('status','Data game katalog berhasil disimpan.');
     }
     public function edit(int $id):void {
+        $this->authorizeAdmin();
         $game=Game::findOrFail($id);$this->editingId=$game->id;
         foreach(['title','slug','description','cover_url','banner_url','esrb_rating'] as $field)$this->$field=$game->$field;
         $this->release_date=$game->release_date?->format('Y-m-d');
         $this->metacritic_score=$game->metacritic_score===null?null:(string)$game->metacritic_score;
     }
-    public function delete(int $id):void { Game::findOrFail($id)->delete();session()->flash('status','Game dihapus dari katalog.'); }
-    public function resetForm():void {$this->reset(['editingId','title','slug','description','cover_url','banner_url','release_date','metacritic_score','esrb_rating']);}
-    public function render(){return view('livewire.admin.game-catalog-manager',['games'=>Game::query()->when($this->search,fn($q)=>$q->where('title','like','%'.$this->search.'%'))->orderBy('title')->paginate(10)]);}
+    public function delete(int $id):void {
+        $this->authorizeAdmin(); Game::findOrFail($id)->delete();session()->flash('status','Game dihapus dari katalog.'); }
+    public function resetForm():void {
+        $this->authorizeAdmin();$this->reset(['editingId','title','slug','description','cover_url','banner_url','release_date','metacritic_score','esrb_rating']);}
+    public function render(){
+        $this->authorizeAdmin();return view('livewire.admin.game-catalog-manager',['games'=>Game::query()->when($this->search,fn($q)=>$q->where('title','like','%'.$this->search.'%'))->orderBy('title')->paginate(10)]);}
 }
