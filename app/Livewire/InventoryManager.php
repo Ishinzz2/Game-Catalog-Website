@@ -1,14 +1,14 @@
 <?php
-namespace App\\Livewire;
+namespace App\Livewire;
 
-use App\\Models\\Game;
-use App\\Models\\GamePlaySession;
-use App\\Models\\UserGameInventory;
-use App\\Models\\UserPlatformAccount;
-use Illuminate\\Support\\Facades\\DB;
-use Illuminate\\Validation\\Rule;
-use Livewire\\Component;
-use Livewire\\WithPagination;
+use App\Models\Game;
+use App\Models\GamePlaySession;
+use App\Models\UserGameInventory;
+use App\Models\UserPlatformAccount;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Livewire\Component;
+use Livewire\WithPagination;
 
 class InventoryManager extends Component
 {

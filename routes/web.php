@@ -1,19 +1,19 @@
 <?php
-use App\\Livewire\\Auth\\Login;
-use App\\Livewire\\Auth\\Register;
-use App\\Livewire\\InventoryManager;
-use App\\Livewire\\WishlistManager;
-use App\\Livewire\\PlayActivityManager;
-use App\\Livewire\\Admin\\CategoryManager;
-use App\\Livewire\\Admin\\PlatformManager;
-use App\\Livewire\\Admin\\UserManager;
-use App\\Models\\Game;
-use App\\Models\\UserGameInventory;
-use App\\Models\\User;
-use App\\Models\\Platform;
-use App\\Models\\UserPlatformAccount;
-use Illuminate\\Support\\Facades\\Auth;
-use Illuminate\\Support\\Facades\\Route;
+use App\Livewire\Auth\Login;
+use App\Livewire\Auth\Register;
+use App\Livewire\InventoryManager;
+use App\Livewire\WishlistManager;
+use App\Livewire\PlayActivityManager;
+use App\Livewire\Admin\CategoryManager;
+use App\Livewire\Admin\PlatformManager;
+use App\Livewire\Admin\UserManager;
+use App\Models\Game;
+use App\Models\UserGameInventory;
+use App\Models\User;
+use App\Models\Platform;
+use App\Models\UserPlatformAccount;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/login', Login::class)->name('login');
 Route::get('/register', Register::class)->middleware('guest')->name('register');
