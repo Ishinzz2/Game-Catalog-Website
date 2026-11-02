@@ -3,6 +3,9 @@ use App\Livewire\Auth\Login;
 use App\Livewire\Auth\Register;
 use App\Livewire\InventoryManager;
 use App\Livewire\WishlistManager;
+use App\Livewire\Admin\CategoryManager;
+use App\Livewire\Admin\PlatformManager;
+use App\Livewire\Admin\UserManager;
 use App\Models\Game;
 use App\Models\UserGameInventory;
 use App\Models\User;
@@ -34,4 +37,7 @@ Route::middleware('auth')->group(function(){
 Route::middleware(['auth','admin'])->prefix('admin')->name('admin.')->group(function(){
  Route::get('/',fn()=>view('admin.dashboard',['stats'=>['users'=>User::count(),'games'=>Game::count(),'platforms'=>Platform::count(),'accounts'=>UserPlatformAccount::count()]]))->name('dashboard');
  Route::get('/games',fn()=>view('admin.games'))->name('games.index');
+ Route::get('/categories',fn()=>view('admin.categories'))->name('categories.index');
+ Route::get('/users',fn()=>view('admin.users'))->name('users.index');
+ Route::get('/platforms',fn()=>view('admin.platforms'))->name('platforms.index');
 });
