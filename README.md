@@ -9,7 +9,13 @@ GameVault adalah aplikasi katalog dan manajemen inventaris game lintas platform.
 - Status: Unplayed, Backlog, Playing, Completed, 100% Platinum, Dropped.
 - CRUD inventaris reaktif dengan Livewire, validasi server, pencarian instan, dan pembatasan data berdasarkan pengguna.
 - Login, halaman detail game, dan indikator kepemilikan ganda.
-- Wishlist interaktif: tambah/hapus item, target platform, harga maksimal, prioritas, dan catatan.
+- Wishlist interaktif: tambah/edit/hapus item, target platform, harga maksimal, prioritas, dan catatan.
+- Riwayat harga wishlist yang dicatat manual beserta mata uang, sumber, dan tanggal; bukan pemantauan harga otomatis.
+- Riwayat sesi bermain per game, durasi dihitung dari waktu mulai dan selesai, serta akumulasi total playtime.
+- Grafik aktivitas bermain 7 hari berdasarkan sesi yang dicatat pengguna.
+- Pencatatan achievement secara manual per game; belum tersinkron otomatis ke layanan platform.
+- Pengelolaan backlog dengan prioritas, target tanggal selesai, catatan, dan filter prioritas.
+- Rekomendasi game berbasis kemiripan kategori/genre dengan game dalam inventaris pengguna.
 - Eager loading relasi untuk mengurangi N+1 query.
 - Antarmuka dark gaming dashboard dengan komponen Blade reusable.
 
@@ -97,7 +103,7 @@ erDiagram
 Relasi inventaris dimuat dengan `with()` untuk mengurangi N+1. Aksi Livewire memvalidasi data pada server dan mengambil item menggunakan batasan `user_id` dari pengguna terautentikasi. Area inventaris dilindungi middleware auth; Laravel menangani CSRF.
 
 ## Batasan prototipe
-Sinkronisasi API Steam/PSN/Xbox/Nintendo, UI manajemen akun platform, registrasi/reset kata sandi, serta pengujian otomatis belum lengkap. Jalankan pengujian dan audit keamanan sebelum deployment.
+Sinkronisasi API Steam/PSN/Xbox/Nintendo, pengambilan achievement otomatis, dan pemantauan harga otomatis belum tersedia. Riwayat harga dan achievement saat ini dimasukkan manual. Rekomendasi menggunakan kategori katalog yang sudah tersedia. Jalankan migrasi dan pengujian otomatis di lingkungan proyek sebelum deployment. Jalankan pengujian dan audit keamanan sebelum deployment.
 
 ## Conventional Commits
 Gunakan `feat:`, `fix:`, `refactor:`, `chore:`, dan `docs:`, misalnya `feat: menambahkan filter status backlog`.

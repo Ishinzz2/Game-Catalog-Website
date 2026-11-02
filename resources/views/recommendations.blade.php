@@ -1,0 +1,8 @@
+@extends('layouts.app')
+@section('title','Rekomendasi Game')
+@section('page-heading','Rekomendasi berdasarkan genre')
+@section('content')
+<div class="mb-5 rounded-xl border border-cyan-400/20 bg-cyan-400/5 p-4 text-sm text-slate-300">Rekomendasi dihitung dari genre/kategori game yang sudah ada di inventaris. Hasil ini bukan rekomendasi AI atau data tren eksternal.</div>
+@if($preferredGenres->isNotEmpty())<div class="mb-6 flex flex-wrap gap-2">@foreach($preferredGenres as $genre)<span class="rounded-full bg-violet-400/10 px-3 py-2 text-xs text-violet-200">{{ $genre['name'] }} · {{ $genre['count'] }} game</span>@endforeach</div>@endif
+<div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">@forelse($recommendations as $game)<a href="{{ route('games.show',$game) }}" class="overflow-hidden rounded-2xl border border-white/10 bg-white/[.035] transition hover:border-violet-400/40">@if($game->cover_url)<img src="{{ $game->cover_url }}" alt="" class="h-40 w-full object-cover">@else<div class="grid h-40 place-items-center bg-slate-900 text-3xl">🎮</div>@endif<div class="p-4"><h3 class="font-bold">{{ $game->title }}</h3><p class="mt-2 text-xs text-slate-400">Genre cocok: {{ $game->categories->pluck('name')->join(', ') ?: 'Belum dikategorikan' }}</p><p class="mt-3 text-xs text-cyan-300">Kecocokan {{ $game->recommendation_score }} genre</p></div></a>@empty<div class="col-span-full rounded-xl border border-dashed border-white/10 p-8 text-center text-sm text-slate-500">Belum cukup data genre atau tidak ada game lain yang cocok. Tambahkan game ke inventaris dan pastikan katalog memiliki kategori.</div>@endforelse</div>
+@endsection
