@@ -29,24 +29,26 @@ Dokumen ini merangkum struktur database dan relasi yang didefinisikan oleh migra
 
 Diagram berikut menunjukkan hubungan utama. Detail kolom, constraint, dan indeks tetap mengacu pada migration.
 
-    erDiagram
-      USERS ||--o{ USER_PLATFORM_ACCOUNTS : owns
-      PLATFORMS ||--o{ USER_PLATFORM_ACCOUNTS : provides
-      USERS ||--o{ USER_GAME_INVENTORIES : owns
-      GAMES ||--o{ USER_GAME_INVENTORIES : catalog_item
-      USER_PLATFORM_ACCOUNTS ||--o{ USER_GAME_INVENTORIES : stores
-      PUBLISHERS o|--o{ GAMES : publishes
-      DEVELOPERS o|--o{ GAMES : develops
-      GAMES }o--o{ CATEGORIES : categorized
-      GAMES }o--o{ TAGS : tagged
-      CATEGORIES o|--o{ CATEGORIES : parent_child
-      USER_GAME_INVENTORIES ||--o| GAME_PLAY_SESSIONS : summary
-      USER_GAME_INVENTORIES ||--o{ PLAY_ACTIVITY_SESSIONS : activity_log
-      USER_GAME_INVENTORIES ||--o{ GAME_ACHIEVEMENTS : achievements
-      USERS ||--o{ WISHLISTS : creates
-      GAMES ||--o{ WISHLISTS : desired
-      PLATFORMS o|--o{ WISHLISTS : target
-      WISHLISTS ||--o{ WISHLIST_PRICE_HISTORIES : price_records
+```mermaid
+erDiagram
+  USERS ||--o{ USER_PLATFORM_ACCOUNTS : owns
+  PLATFORMS ||--o{ USER_PLATFORM_ACCOUNTS : provides
+  USERS ||--o{ USER_GAME_INVENTORIES : owns
+  GAMES ||--o{ USER_GAME_INVENTORIES : catalog_item
+  USER_PLATFORM_ACCOUNTS ||--o{ USER_GAME_INVENTORIES : stores
+  PUBLISHERS o|--o{ GAMES : publishes
+  DEVELOPERS o|--o{ GAMES : develops
+  GAMES }o--o{ CATEGORIES : categorized
+  GAMES }o--o{ TAGS : tagged
+  CATEGORIES o|--o{ CATEGORIES : parent_child
+  USER_GAME_INVENTORIES ||--o| GAME_PLAY_SESSIONS : summary
+  USER_GAME_INVENTORIES ||--o{ PLAY_ACTIVITY_SESSIONS : activity_log
+  USER_GAME_INVENTORIES ||--o{ GAME_ACHIEVEMENTS : achievements
+  USERS ||--o{ WISHLISTS : creates
+  GAMES ||--o{ WISHLISTS : desired
+  PLATFORMS o|--o{ WISHLISTS : target
+  WISHLISTS ||--o{ WISHLIST_PRICE_HISTORIES : price_records
+```
 
 ## Tabel dan kolom penting
 
