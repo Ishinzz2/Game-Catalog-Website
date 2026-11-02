@@ -88,7 +88,8 @@ class InventoryManager extends Component
                 ['user_game_inventory_id' => $item->id],
                 [
                     'completion_status' => $data['completion_status'],
-                    'playtime_minutes' => $data['playtime_minutes'],
+                    'manual_playtime_minutes' => $data['playtime_minutes'],
+                    'playtime_minutes' => (int) $data['playtime_minutes'] + (int) $item->activitySessions()->sum('duration_minutes'),
                     'rating_user' => $data['rating_user'] ?? null,
                     'review_notes' => $data['review_notes'] ?? null,
                     'last_played_at' => $data['last_played_at'] ? \Illuminate\Support\Carbon::parse($data['last_played_at']) : null,
@@ -112,7 +113,7 @@ class InventoryManager extends Component
         $this->purchase_date = $item->purchase_date?->format('Y-m-d');
         $this->is_installed = $item->is_installed;
         $this->completion_status = $item->playSession?->completion_status ?? 'Backlog';
-        $this->playtime_minutes = $item->playSession?->playtime_minutes ?? 0;
+        $this->playtime_minutes = $item->playSession?->manual_playtime_minutes ?? 0;
         $this->rating_user = $item->playSession?->rating_user;
         $this->review_notes = $item->playSession?->review_notes;
         $this->last_played_at = $item->playSession?->last_played_at?->format('Y-m-d\\TH:i');
