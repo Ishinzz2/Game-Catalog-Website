@@ -91,7 +91,7 @@ class InventoryManager extends Component
                     'playtime_minutes' => $data['playtime_minutes'],
                     'rating_user' => $data['rating_user'] ?? null,
                     'review_notes' => $data['review_notes'] ?? null,
-                    'last_played_at' => $data['last_played_at'] ? \\Illuminate\\Support\\Carbon::parse($data['last_played_at']) : null,
+                    'last_played_at' => $data['last_played_at'] ? \Illuminate\Support\Carbon::parse($data['last_played_at']) : null,
                 ]
             );
         });
@@ -156,7 +156,7 @@ class InventoryManager extends Component
         return view('livewire.inventory-manager', [
             'games' => Game::orderBy('title')->get(['id', 'title']),
             'accounts' => UserPlatformAccount::where('user_id', auth()->id())->with('platform')->get(),
-            'categories' => \\App\\Models\\Category::orderBy('name')->get(['id', 'name']),
+            'categories' => \App\Models\Category::orderBy('name')->get(['id', 'name']),
             'inventories' => $inventories,
         ])->layout('layouts.app', ['pageHeading' => 'Inventaris Saya']);
     }
