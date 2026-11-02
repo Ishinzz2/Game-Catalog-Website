@@ -1,15 +1,209 @@
 <?php
+
 namespace Database\Seeders;
-use App\Models\Category;use App\Models\Developer;use App\Models\Game;use App\Models\GamePlaySession;use App\Models\Platform;use App\Models\Publisher;use App\Models\Tag;use App\Models\User;use App\Models\UserGameInventory;use App\Models\UserPlatformAccount;use Illuminate\Database\Seeder;use Illuminate\Support\Facades\Hash;use Illuminate\Support\Str;
-class DatabaseSeeder extends Seeder {
- public function run():void {
-  $platforms=[];foreach([['Steam','steam','Valve'],['PlayStation 5','ps5','Sony Interactive Entertainment'],['Xbox Series X|S','xbox-series','Microsoft'],['Nintendo Switch','switch','Nintendo'],['Epic Games Store','epic','Epic Games'],['GOG','gog','CD Projekt']] as [$name,$code,$company])$platforms[$code]=Platform::firstOrCreate(['code'=>$code],['name'=>$name,'company_name'=>$company]);
-  foreach(['Action','Adventure','Role-Playing','RPG','Shooter','Strategy','Simulation','Indie','Racing','Horror'] as $name)Category::firstOrCreate(['slug'=>Str::slug($name)],['name'=>$name,'description'=>'Genre '.$name]);
-  foreach(['Open World','Co-op','Soulslike','VR Ready','Deck Verified','Single Player'] as $name)Tag::firstOrCreate(['slug'=>Str::slug($name)],['name'=>$name]);
-  $publisher=Publisher::firstOrCreate(['slug'=>'fromsoftware'],['name'=>'FromSoftware','country'=>'Japan','website'=>'https://www.fromsoftware.jp/']);$developer=Developer::firstOrCreate(['slug'=>'fromsoftware'],['name'=>'FromSoftware','country'=>'Japan','website'=>'https://www.fromsoftware.jp/']);
-  foreach([['Elden Ring','elden-ring','Action RPG di dunia fantasi luas.','2022-02-25',96,'M'],['Cyberpunk 2077','cyberpunk-2077','RPG dunia terbuka di Night City.','2020-12-10',86,'M'],['Hades','hades','Roguelike action dengan pertarungan cepat.','2020-09-17',93,'T'],['Stardew Valley','stardew-valley','Simulasi pertanian dan kehidupan komunitas.','2016-02-26',89,'E10+'],['Forza Horizon 5','forza-horizon-5','Game balap dunia terbuka di Meksiko.','2021-11-09',92,'E']] as [$title,$slug,$description,$release,$score,$rating]){$game=Game::firstOrCreate(['slug'=>$slug],['title'=>$title,'description'=>$description,'release_date'=>$release,'metacritic_score'=>$score,'esrb_rating'=>$rating,'publisher_id'=>$publisher->id,'developer_id'=>$developer->id]);$game->categories()->syncWithoutDetaching([Category::where('slug','action')->value('id')]);$game->tags()->syncWithoutDetaching([Tag::where('slug','open-world')->value('id')]);}
-  $user=User::firstOrCreate(['email'=>'demo@gamevault.test'],['name'=>'Demo Player','password'=>Hash::make('password'),'theme_preference'=>'dark','default_currency'=>'IDR','role'=>'user']);
-  User::firstOrCreate(['email'=>'admin@gamevault.test'],['name'=>'GameVault Admin','password'=>Hash::make('password'),'role'=>'admin']);
-  foreach(array_slice(array_values($platforms),0,3) as $index=>$platform){$account=UserPlatformAccount::firstOrCreate(['user_id'=>$user->id,'platform_id'=>$platform->id,'account_username'=>'demo_player'],['is_connected'=>false]);$game=Game::where('slug',array_values(['elden-ring','cyberpunk-2077','hades'])[$index])->first();$inventory=UserGameInventory::firstOrCreate(['user_id'=>$user->id,'game_id'=>$game->id,'user_platform_account_id'=>$account->id],['format'=>'Digital','acquisition_type'=>'Purchased','purchase_price'=>($index+1)*250000,'purchase_date'=>now()->subMonths($index+2)->toDateString(),'is_installed'=>$index===0]);GamePlaySession::updateOrCreate(['user_game_inventory_id'=>$inventory->id],['playtime_minutes'=>[1850,420,95][$index],'completion_status'=>['Playing','Backlog','Unplayed'][$index],'last_played_at'=>$index===0?now()->subDay():null]);}
- }
+
+use App\Models\Category;
+use App\Models\Developer;
+use App\Models\Game;
+use App\Models\GamePlaySession;
+use App\Models\Platform;
+use App\Models\Publisher;
+use App\Models\Tag;
+use App\Models\User;
+use App\Models\UserGameInventory;
+use App\Models\UserPlatformAccount;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+
+class DatabaseSeeder extends Seeder
+{
+    public function run(): void
+    {
+        $platforms = [];
+
+        foreach ([
+            ['Steam', 'steam', 'Valve'],
+            ['PlayStation 5', 'ps5', 'Sony Interactive Entertainment'],
+            ['Xbox Series X|S', 'xbox-series', 'Microsoft'],
+            ['Nintendo Switch', 'switch', 'Nintendo'],
+            ['Epic Games Store', 'epic', 'Epic Games'],
+            ['GOG', 'gog', 'CD Projekt'],
+        ] as [$name, $code, $company]) {
+            $platforms[$code] = Platform::firstOrCreate(
+                ['code' => $code],
+                ['name' => $name, 'company_name' => $company]
+            );
+        }
+
+        foreach ([
+            'Action',
+            'Adventure',
+            'Role-Playing',
+            'RPG',
+            'Shooter',
+            'Strategy',
+            'Simulation',
+            'Indie',
+            'Racing',
+            'Horror',
+        ] as $name) {
+            Category::firstOrCreate(
+                ['slug' => Str::slug($name)],
+                ['name' => $name, 'description' => 'Genre '.$name]
+            );
+        }
+
+        foreach (['Open World', 'Co-op', 'Soulslike', 'VR Ready', 'Deck Verified', 'Single Player'] as $name) {
+            Tag::firstOrCreate(
+                ['slug' => Str::slug($name)],
+                ['name' => $name]
+            );
+        }
+
+        $publisher = Publisher::firstOrCreate(
+            ['slug' => 'fromsoftware'],
+            [
+                'name' => 'FromSoftware',
+                'country' => 'Japan',
+                'website' => 'https://www.fromsoftware.jp/',
+            ]
+        );
+
+        $developer = Developer::firstOrCreate(
+            ['slug' => 'fromsoftware'],
+            [
+                'name' => 'FromSoftware',
+                'country' => 'Japan',
+                'website' => 'https://www.fromsoftware.jp/',
+            ]
+        );
+
+        $games = [
+            [
+                'Elden Ring',
+                'elden-ring',
+                'Action RPG di dunia fantasi luas.',
+                '2022-02-25',
+                96,
+                'M',
+            ],
+            [
+                'Cyberpunk 2077',
+                'cyberpunk-2077',
+                'RPG dunia terbuka di Night City.',
+                '2020-12-10',
+                86,
+                'M',
+            ],
+            [
+                'Hades',
+                'hades',
+                'Roguelike action dengan pertarungan cepat.',
+                '2020-09-17',
+                93,
+                'T',
+            ],
+            [
+                'Stardew Valley',
+                'stardew-valley',
+                'Simulasi pertanian dan kehidupan komunitas.',
+                '2016-02-26',
+                89,
+                'E10+',
+            ],
+            [
+                'Forza Horizon 5',
+                'forza-horizon-5',
+                'Game balap dunia terbuka di Meksiko.',
+                '2021-11-09',
+                92,
+                'E',
+            ],
+        ];
+
+        foreach ($games as [$title, $slug, $description, $release, $score, $rating]) {
+            $game = Game::firstOrCreate(
+                ['slug' => $slug],
+                [
+                    'title' => $title,
+                    'description' => $description,
+                    'release_date' => $release,
+                    'metacritic_score' => $score,
+                    'esrb_rating' => $rating,
+                    'publisher_id' => $publisher->id,
+                    'developer_id' => $developer->id,
+                ]
+            );
+
+            $game->categories()->syncWithoutDetaching([
+                Category::where('slug', 'action')->value('id'),
+            ]);
+
+            $game->tags()->syncWithoutDetaching([
+                Tag::where('slug', 'open-world')->value('id'),
+            ]);
+        }
+
+        $user = User::firstOrCreate(
+            ['email' => 'demo@gamevault.test'],
+            [
+                'name' => 'Demo Player',
+                'password' => Hash::make('password'),
+                'theme_preference' => 'dark',
+                'default_currency' => 'IDR',
+                'role' => 'user',
+            ]
+        );
+
+        User::firstOrCreate(
+            ['email' => 'admin@gamevault.test'],
+            [
+                'name' => 'GameVault Admin',
+                'password' => Hash::make('password'),
+                'role' => 'admin',
+            ]
+        );
+
+        $sampleGameSlugs = ['elden-ring', 'cyberpunk-2077', 'hades'];
+        $playtimes = [1850, 420, 95];
+        $completionStatuses = ['Playing', 'Backlog', 'Unplayed'];
+
+        foreach (array_slice(array_values($platforms), 0, 3) as $index => $platform) {
+            $account = UserPlatformAccount::firstOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'platform_id' => $platform->id,
+                    'account_username' => 'demo_player',
+                ],
+                ['is_connected' => false]
+            );
+
+            $game = Game::where('slug', $sampleGameSlugs[$index])->first();
+
+            $inventory = UserGameInventory::firstOrCreate(
+                [
+                    'user_id' => $user->id,
+                    'game_id' => $game->id,
+                    'user_platform_account_id' => $account->id,
+                ],
+                [
+                    'format' => 'Digital',
+                    'acquisition_type' => 'Purchased',
+                    'purchase_price' => ($index + 1) * 250000,
+                    'purchase_date' => now()->subMonths($index + 2)->toDateString(),
+                    'is_installed' => $index === 0,
+                ]
+            );
+
+            GamePlaySession::updateOrCreate(
+                ['user_game_inventory_id' => $inventory->id],
+                [
+                    'playtime_minutes' => $playtimes[$index],
+                    'completion_status' => $completionStatuses[$index],
+                    'last_played_at' => $index === 0 ? now()->subDay() : null,
+                ]
+            );
+        }
+    }
 }
