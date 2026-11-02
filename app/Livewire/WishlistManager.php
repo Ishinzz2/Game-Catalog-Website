@@ -4,8 +4,8 @@ namespace App\Livewire;
 use App\Models\Game;
 use App\Models\Platform;
 use App\Models\UserGameInventory;
-use App\Models\UserPlatformAccount;
 use App\Models\GamePlaySession;
+use App\Models\UserPlatformAccount;
 use App\Models\Wishlist;
 use App\Models\WishlistPriceHistory;
 use Illuminate\Support\Carbon;
@@ -24,7 +24,9 @@ class WishlistManager extends Component
 
     public function updated($property): void
     {
-        if (in_array($property, ['search', 'filterPriority', 'filterPlatform'], true)) $this->resetPage();
+        if (in_array($property, ['search', 'filterPriority', 'filterPlatform'], true)) {
+            $this->resetPage();
+        }
     }
     public ?int $game_id = null;
     public ?int $target_platform_id = null;
@@ -140,7 +142,18 @@ class WishlistManager extends Component
             'games' => Game::orderBy('title')->get(['id', 'title']),
             'platforms' => Platform::orderBy('name')->get(),
             'accounts' => UserPlatformAccount::where('user_id', auth()->id())->with('platform')->get(),
-            'items' => Wishlist::where('user_id', auth()->id())->with(['game', 'targetPlatform', 'priceHistories' => fn ($query) => $query->latest('recorded_at')->limit(5)])->when($this->search, fn ($q) => $q->whereHas('game', fn ($g) => $g->where('title', 'like', '%'.$this->search.'%')))->when($this->filterPriority, fn ($q) => $q->where('priority', $this->filterPriority))->when($this->filterPlatform, fn ($q) => $q->where('target_platform_id', $this->filterPlatform))->latest()->paginate(8),
+            'items' => Wishlist::where('user_id', auth()->id())
+                ->with([
+                    'game',
+                    'targetPlatform',
+                    'priceHistories' => fn ($query) => $query->latest('recorded_at')->limit(5),
+                ])
+                ->when($this->search, fn ($query) => $query->whereHas('game', fn ($gameQuery) => $gameQuery
+                    ->where('title', 'like', '%'.$this->search.'%')))
+                ->when($this->filterPriority, fn ($query) => $query->where('priority', $this->filterPriority))
+                ->when($this->filterPlatform, fn ($query) => $query->where('target_platform_id', $this->filterPlatform))
+                ->latest()
+                ->paginate(8),
         ])->layout('layouts.app', ['pageHeading' => 'Wishlist Saya']);
     }
 }
