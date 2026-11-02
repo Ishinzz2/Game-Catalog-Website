@@ -2,7 +2,7 @@
 @if (session('status'))<div class="rounded-xl border border-emerald-400/20 bg-emerald-400/10 p-3 text-sm text-emerald-300">{{ session('status') }}</div>@endif
 <div><h2 class="text-xl font-bold">Akun Platform Saya</h2><p class="text-sm text-slate-400">Simpan identitas akun platform. Fitur ini belum melakukan autentikasi atau sinkronisasi otomatis ke penyedia.</p></div>
 <form wire:submit="save" class="grid gap-3 rounded-2xl border border-white/10 bg-slate-900 p-5 md:grid-cols-2">
-<select wire:model="platform_id" class="rounded-xl border border-white/10 bg-slate-950 p-3"><option value="">Pilih platform</option>@foreach($platforms as $platform)<option value="{{$platform->id}}">{{$platform->name}}</option>@endforeach</select>
+<select wire:model="platform_id" class="rounded-xl border border-white/10 bg-slate-950 p-3"><option value="">Pilih platform</option>@foreach($platforms as $platform)<option value="{{$platform->id}}">{{$platform->name}}</option>@endforeach</select>@error('platform_id')<p class="text-xs text-rose-300">{{ $message }}</p>@enderror
 <input wire:model="account_username" placeholder="Username akun (opsional)" class="rounded-xl border border-white/10 bg-slate-950 p-3">
 <input wire:model="account_id_external" placeholder="ID eksternal (opsional)" class="rounded-xl border border-white/10 bg-slate-950 p-3">
 <button class="rounded-xl bg-violet-500 p-3 font-semibold md:col-span-2">{{$editingId?'Simpan perubahan':'Tambah akun platform'}}</button>
