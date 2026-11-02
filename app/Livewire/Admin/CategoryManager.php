@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Livewire\Concerns\AuthorizesAdmin;
 use App\Models\Category;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -10,6 +11,7 @@ use Livewire\WithPagination;
 
 class CategoryManager extends Component
 {
+    use AuthorizesAdmin;
     use WithPagination;
 
     public string $search = '';
@@ -17,11 +19,6 @@ class CategoryManager extends Component
     public string $name = '';
     public string $slug = '';
     public ?string $description = null;
-
-    private function authorizeAdmin(): void
-    {
-        abort_unless(auth()->user()?->isAdmin(), 403);
-    }
 
     public function mount(): void
     {
