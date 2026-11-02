@@ -93,9 +93,21 @@ class PlayActivityManager extends Component
 
     public function deleteSession(int $id): void
     {
-        PlayActivitySession::whereHas('inventory', fn ($query) => $query->where('user_id', auth()->id()))
-            ->findOrFail($id)->delete();
-        session()->flash('status', 'Riwayat sesi dihapus.');
+        $session = PlayActivitySession::whereHas('inventory', fn ($query) => $query->where('user_id', auth()->id()))
+            ->with('inventory.playSession')->findOrFail($id);
+        $inventory = $session->inventory;
+        $duration = $session->duration_minutes;
+        $session->delete();
+
+        if ($inventory->playSession) {
+            $summary = $inventory->playSession;
+            $summary->update([
+                'playtime_minutes' => max(0, $summary->playtime_minutes - $duration),
+                'last_played_at' => $inventory->activitySessions()->max('ended_at'),
+            ]);
+        }
+
+        session()->flash('status', 'Riwayat sesi dihapus dan total playtime diperbarui.');
     }
 
     public function deleteAchievement(int $id): void
