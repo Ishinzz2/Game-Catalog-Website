@@ -6,6 +6,7 @@ use App\Models\GameAchievement;
 use App\Models\PlayActivitySession;
 use App\Models\UserGameInventory;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 
