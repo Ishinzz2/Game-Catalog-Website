@@ -2,20 +2,17 @@
 
 namespace App\Livewire\Admin;
 
+use App\Livewire\Concerns\AuthorizesAdmin;
 use App\Models\User;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class UserManager extends Component
 {
+    use AuthorizesAdmin;
     use WithPagination;
 
     public string $search = '';
-
-    private function authorizeAdmin(): void
-    {
-        abort_unless(auth()->user()?->isAdmin(), 403);
-    }
 
     public function mount(): void
     {
