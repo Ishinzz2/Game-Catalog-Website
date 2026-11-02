@@ -54,17 +54,29 @@ class PlayActivityManager extends Component
         }
 
         $inventory = UserGameInventory::where('user_id', auth()->id())->findOrFail($data['inventory_id']);
-        PlayActivitySession::create([
-            'user_game_inventory_id' => $inventory->id,
-            'started_at' => $start,
-            'ended_at' => $end,
-            'duration_minutes' => $minutes,
-            'notes' => $data['session_notes'] ?? null,
-        ]);
+        DB::transaction(function () use ($inventory, $start, $end, $minutes, $data): void {
+            $lockedInventory = UserGameInventory::whereKey($inventory->id)->lockForUpdate()->firstOrFail();
+            PlayActivitySession::create([
+                'user_game_inventory_id' => $lockedInventory->id,
+                'started_at' => $start,
+                'ended_at' => $end,
+                'duration_minutes' => $minutes,
+                'notes' => $data['session_notes'] ?? null,
+            ]);
 
-        $summary = $inventory->playSession()->firstOrCreate([], ['completion_status' => 'Backlog']);
-        $summary->increment('playtime_minutes', $minutes);
-        $summary->update(['last_played_at' => $end]);
+            $summary = $lockedInventory->playSession()->lockForUpdate()->first();
+            if (!$summary) {
+                $summary = $lockedInventory->playSession()->create([
+                    'completion_status' => 'Backlog',
+                    'manual_playtime_minutes' => 0,
+                ]);
+            }
+            $sessionMinutes = $lockedInventory->activitySessions()->sum('duration_minutes');
+            $summary->update([
+                'playtime_minutes' => (int) $summary->manual_playtime_minutes + (int) $sessionMinutes,
+                'last_played_at' => $end,
+            ]);
+        });
 
         $this->reset(['started_at', 'ended_at', 'session_notes']);
         session()->flash('status', 'Riwayat sesi bermain berhasil ditambahkan.');
@@ -95,17 +107,17 @@ class PlayActivityManager extends Component
     {
         $session = PlayActivitySession::whereHas('inventory', fn ($query) => $query->where('user_id', auth()->id()))
             ->with('inventory.playSession')->findOrFail($id);
-        $inventory = $session->inventory;
-        $duration = $session->duration_minutes;
-        $session->delete();
-
-        if ($inventory->playSession) {
-            $summary = $inventory->playSession;
-            $summary->update([
-                'playtime_minutes' => max(0, $summary->playtime_minutes - $duration),
-                'last_played_at' => $inventory->activitySessions()->max('ended_at'),
-            ]);
-        }
+        DB::transaction(function () use ($session): void {
+            $inventory = UserGameInventory::whereKey($session->inventory->id)->lockForUpdate()->firstOrFail();
+            $session->delete();
+            $summary = $inventory->playSession()->lockForUpdate()->first();
+            if ($summary) {
+                $summary->update([
+                    'playtime_minutes' => (int) $summary->manual_playtime_minutes + (int) $inventory->activitySessions()->sum('duration_minutes'),
+                    'last_played_at' => $inventory->activitySessions()->max('ended_at'),
+                ]);
+            }
+        });
 
         session()->flash('status', 'Riwayat sesi dihapus dan total playtime diperbarui.');
     }
