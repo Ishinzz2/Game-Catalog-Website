@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Livewire\Concerns\AuthorizesAdmin;
 use App\Models\Category;
 use App\Models\Game;
 use Illuminate\Support\Str;
@@ -11,6 +12,7 @@ use Livewire\WithPagination;
 
 class GameCatalogManager extends Component
 {
+    use AuthorizesAdmin;
     use WithPagination;
 
     public string $search = '';
@@ -24,11 +26,6 @@ class GameCatalogManager extends Component
     public ?string $metacritic_score = null;
     public ?string $esrb_rating = null;
     public array $categoryIds = [];
-
-    private function authorizeAdmin(): void
-    {
-        abort_unless(auth()->user()?->isAdmin(), 403);
-    }
 
     public function mount(): void
     {
