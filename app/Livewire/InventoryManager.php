@@ -1,10 +1,12 @@
 <?php
 namespace App\Livewire;
 
+use App\Models\Category;
 use App\Models\Game;
 use App\Models\GamePlaySession;
 use App\Models\UserGameInventory;
 use App\Models\UserPlatformAccount;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
@@ -27,7 +29,9 @@ class InventoryManager extends Component
 
     public function updated($property): void
     {
-        if (in_array($property, ['search', 'filterPlatform', 'filterStatus', 'filterFormat', 'filterGenre', 'filterBacklogPriority', 'filterInstalled', 'filterAcquisition', 'sortBy'], true)) $this->resetPage();
+        if (in_array($property, ['search', 'filterPlatform', 'filterStatus', 'filterFormat', 'filterGenre', 'filterBacklogPriority', 'filterInstalled', 'filterAcquisition', 'sortBy'], true)) {
+            $this->resetPage();
+        }
     }
 
     public ?int $game_id = null;
@@ -101,7 +105,7 @@ class InventoryManager extends Component
                     'playtime_minutes' => (int) $data['playtime_minutes'] + (int) $item->activitySessions()->sum('duration_minutes'),
                     'rating_user' => $data['rating_user'] ?? null,
                     'review_notes' => $data['review_notes'] ?? null,
-                    'last_played_at' => $data['last_played_at'] ? \Illuminate\Support\Carbon::parse($data['last_played_at']) : $item->activitySessions()->max('ended_at'),
+                    'last_played_at' => $data['last_played_at'] ? Carbon::parse($data['last_played_at']) : $item->activitySessions()->max('ended_at'),
                 ]
             );
         });
@@ -163,8 +167,16 @@ class InventoryManager extends Component
                 ->whereHas('playSession', fn ($s) => $s->whereIn('completion_status', ['Unplayed', 'Backlog'])))
             ->when($this->filterInstalled !== '', fn ($q) => $q->where('is_installed', $this->filterInstalled === '1'))
             ->when($this->filterAcquisition, fn ($q) => $q->where('acquisition_type', $this->filterAcquisition))
-            ->when($this->sortBy === 'title', fn ($q) => $q->join('games as sort_games', 'sort_games.id', '=', 'user_game_inventories.game_id')->orderBy('sort_games.title')->select('user_game_inventories.*'))
-            ->when($this->sortBy === 'playtime', fn ($q) => $q->orderBy(GamePlaySession::select('playtime_minutes')->whereColumn('user_game_inventory_id', 'user_game_inventories.id')->limit(1), 'desc'))
+            ->when($this->sortBy === 'title', fn ($query) => $query
+                ->join('games as sort_games', 'sort_games.id', '=', 'user_game_inventories.game_id')
+                ->orderBy('sort_games.title')
+                ->select('user_game_inventories.*'))
+            ->when($this->sortBy === 'playtime', fn ($query) => $query->orderBy(
+                GamePlaySession::select('playtime_minutes')
+                    ->whereColumn('user_game_inventory_id', 'user_game_inventories.id')
+                    ->limit(1),
+                'desc'
+            ))
             ->when($this->sortBy === 'purchase_price', fn ($q) => $q->orderByDesc('purchase_price'))
             ->when($this->sortBy === 'recent', fn ($q) => $q->orderByDesc('created_at'))
             ->paginate(12);
@@ -172,7 +184,7 @@ class InventoryManager extends Component
         return view('livewire.inventory-manager', [
             'games' => Game::orderBy('title')->get(['id', 'title']),
             'accounts' => UserPlatformAccount::where('user_id', auth()->id())->with('platform')->get(),
-            'categories' => \App\Models\Category::orderBy('name')->get(['id', 'name']),
+            'categories' => Category::orderBy('name')->get(['id', 'name']),
             'inventories' => $inventories,
         ])->layout('layouts.app', ['pageHeading' => 'Inventaris Saya']);
     }
