@@ -87,6 +87,6 @@ class InventoryManager extends Component {
                 ->when($this->filterStatus,fn($q)=>$q->whereHas('playSession',fn($s)=>$s->where('completion_status',$this->filterStatus)))
                 ->when($this->filterGenre,fn($q)=>$q->whereHas('game.categories',fn($c)=>$c->where('categories.id',$this->filterGenre)))
                 ->latest()->paginate(8)
-        ]);
+        ])->layout('layouts.app', ['pageHeading' => 'Inventaris Saya']);
     }
 }
