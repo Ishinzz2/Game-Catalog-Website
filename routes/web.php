@@ -58,22 +58,32 @@ Route::middleware('auth')->group(function () {
     Route::get('/activity', PlayActivityManager::class)->name('activity.index');
     Route::get('/recommendations', function () {
         $user = auth()->user();
-        $owned = UserGameInventory::where('user_id', $user->id)->with('game.categories')->get();
-        $genreCounts = $owned->flatMap(fn ($item) => $item->game?->categories ?? collect())
-            ->groupBy('id')->map(fn ($items) => $items->count())->sortDesc();
-        $preferredGenres = $genreCounts->take(5)->map(function ($count, $id) {
-            $category = \App\Models\Category::find($id);
-            return $category ? ['name' => $category->name, 'count' => $count] : null;
-        })->filter()->values();
-        $genreIds = $genreCounts->keys()->all();
-        $ownedGameIds = $owned->pluck('game_id')->all();
-        $recommendations = Game::with('categories')
+
+        $preferredGenres = \App\Models\Category::query()
+            ->withCount(['games as owned_games_count' => fn ($games) => $games->whereHas('inventories', fn ($inventories) => $inventories->where('user_id', $user->id))])
+            ->having('owned_games_count', '>', 0)
+            ->orderByDesc('owned_games_count')
+            ->orderBy('name')
+            ->limit(5)
+            ->get()
+            ->map(fn ($category) => ['name' => $category->name, 'count' => $category->owned_games_count]);
+
+        $genreIds = \App\Models\Category::query()
+            ->whereHas('games.inventories', fn ($inventories) => $inventories->where('user_id', $user->id))
+            ->pluck('id');
+
+        $ownedGameIds = UserGameInventory::where('user_id', $user->id)->select('game_id')->distinct();
+
+        $recommendations = Game::query()
+            ->with('categories')
             ->whereNotIn('id', $ownedGameIds)
-            ->get()->map(function ($game) use ($genreIds) {
-                $game->recommendation_score = $game->categories->whereIn('id', $genreIds)->count();
-                return $game;
-            })->filter(fn ($game) => $game->recommendation_score > 0)
-            ->sortByDesc('recommendation_score')->take(12)->values();
+            ->withCount(['categories as recommendation_score' => fn ($categories) => $categories->whereIn('categories.id', $genreIds)])
+            ->whereHas('categories', fn ($categories) => $categories->whereIn('categories.id', $genreIds))
+            ->orderByDesc('recommendation_score')
+            ->orderBy('title')
+            ->limit(12)
+            ->get();
+
         return view('recommendations', compact('preferredGenres', 'recommendations'));
     })->name('recommendations.index');
     Route::get('/platform-accounts', fn () => view('platform-accounts'))->name('platform-accounts.index');
