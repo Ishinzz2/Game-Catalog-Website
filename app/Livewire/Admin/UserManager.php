@@ -38,10 +38,17 @@ class UserManager extends Component {
         $user->delete();
         session()->flash('status','Akun pengguna berhasil dinonaktifkan (soft delete).');
     }
+    public function restore(int $id):void {
+        $this->authorizeAdmin();
+        $user=User::withTrashed()->findOrFail($id);
+        if(!$user->trashed()) return;
+        $user->restore();
+        session()->flash('status','Akun pengguna berhasil diaktifkan kembali.');
+    }
     public function render() {
         $this->authorizeAdmin();
         return view('livewire.admin.user-manager',[
-            'users'=>User::query()->when($this->search,function($q){$term='%'.$this->search.'%';$q->where(fn($sub)=>$sub->where('name','like',$term)->orWhere('email','like',$term));})->orderByDesc('created_at')->paginate(12)
+            'users'=>User::withTrashed()->when($this->search,function($q){$term='%'.$this->search.'%';$q->where(fn($sub)=>$sub->where('name','like',$term)->orWhere('email','like',$term));})->orderByDesc('created_at')->paginate(12)
         ]);
     }
 }
