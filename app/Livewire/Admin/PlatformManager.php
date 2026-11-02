@@ -1,6 +1,7 @@
 <?php
 namespace App\Livewire\Admin;
 use App\Models\Platform;
+use App\Models\UserPlatformAccount;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
@@ -38,7 +39,7 @@ class PlatformManager extends Component {
     }
     public function delete(int $id):void {
         $platform=Platform::findOrFail($id);
-        if($platform->userAccounts()->exists()) {
+        if(UserPlatformAccount::withTrashed()->where('platform_id',$platform->id)->exists()) {
             session()->flash('status','Platform tidak dapat dihapus karena masih digunakan oleh akun pengguna. Edit datanya atau hapus relasi akun terkait terlebih dahulu.');
             return;
         }
