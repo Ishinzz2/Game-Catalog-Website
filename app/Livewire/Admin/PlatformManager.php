@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin;
 
+use App\Livewire\Concerns\AuthorizesAdmin;
 use App\Models\Platform;
 use App\Models\UserPlatformAccount;
 use Illuminate\Support\Str;
@@ -11,6 +12,7 @@ use Livewire\WithPagination;
 
 class PlatformManager extends Component
 {
+    use AuthorizesAdmin;
     use WithPagination;
 
     public string $search = '';
@@ -19,11 +21,6 @@ class PlatformManager extends Component
     public string $code = '';
     public ?string $company_name = null;
     public ?string $icon_path = null;
-
-    private function authorizeAdmin(): void
-    {
-        abort_unless(auth()->user()?->isAdmin(), 403);
-    }
 
     public function mount(): void
     {
