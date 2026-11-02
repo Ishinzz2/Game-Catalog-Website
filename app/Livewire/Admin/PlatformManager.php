@@ -14,8 +14,10 @@ class PlatformManager extends Component {
     public string $code='';
     public ?string $company_name=null;
     public ?string $icon_path=null;
-    public function mount():void { abort_unless(auth()->user()?->isAdmin(),403); }
-    public function updatedName():void { if(!$this->editingId)$this->code=Str::slug($this->name); }
+    private function authorizeAdmin():void { abort_unless(auth()->user()?->isAdmin(),403); }
+    public function mount():void { $this->authorizeAdmin(); }
+    public function updatedName():void {
+        $this->authorizeAdmin(); if(!$this->editingId)$this->code=Str::slug($this->name); }
     protected function rules():array { return [
         'name'=>['required','string','max:255'],
         'code'=>['required','alpha_dash','max:100',Rule::unique('platforms','code')->ignore($this->editingId)],
@@ -23,6 +25,7 @@ class PlatformManager extends Component {
         'icon_path'=>['nullable','string','max:2048'],
     ]; }
     public function save():void {
+        $this->authorizeAdmin();
         $data=$this->validate();
         $platform=$this->editingId?Platform::findOrFail($this->editingId):new Platform();
         $platform->fill($data)->save();
@@ -30,6 +33,7 @@ class PlatformManager extends Component {
         session()->flash('status','Platform berhasil disimpan.');
     }
     public function edit(int $id):void {
+        $this->authorizeAdmin();
         $platform=Platform::findOrFail($id);
         $this->editingId=$platform->id;
         $this->name=$platform->name;
@@ -38,6 +42,7 @@ class PlatformManager extends Component {
         $this->icon_path=$platform->icon_path;
     }
     public function delete(int $id):void {
+        $this->authorizeAdmin();
         $platform=Platform::findOrFail($id);
         if(UserPlatformAccount::withTrashed()->where('platform_id',$platform->id)->exists()) {
             session()->flash('status','Platform tidak dapat dihapus karena masih digunakan oleh akun pengguna. Edit datanya atau hapus relasi akun terkait terlebih dahulu.');
@@ -46,8 +51,10 @@ class PlatformManager extends Component {
         $platform->delete();
         session()->flash('status','Platform berhasil dihapus.');
     }
-    public function resetForm():void { $this->reset(['editingId','name','code','company_name','icon_path']); }
+    public function resetForm():void {
+        $this->authorizeAdmin(); $this->reset(['editingId','name','code','company_name','icon_path']); }
     public function render() {
+        $this->authorizeAdmin();
         return view('livewire.admin.platform-manager',[
             'platforms'=>Platform::query()->withCount('userAccounts')->when($this->search,fn($q)=>$q->where('name','like','%'.$this->search.'%'))->orderBy('name')->paginate(10)
         ]);
