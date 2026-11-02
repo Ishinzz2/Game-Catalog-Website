@@ -101,7 +101,7 @@ class InventoryManager extends Component
                     'playtime_minutes' => (int) $data['playtime_minutes'] + (int) $item->activitySessions()->sum('duration_minutes'),
                     'rating_user' => $data['rating_user'] ?? null,
                     'review_notes' => $data['review_notes'] ?? null,
-                    'last_played_at' => $data['last_played_at'] ? \Illuminate\Support\Carbon::parse($data['last_played_at']) : null,
+                    'last_played_at' => $data['last_played_at'] ? \Illuminate\Support\Carbon::parse($data['last_played_at']) : $item->activitySessions()->max('ended_at'),
                 ]
             );
         });
