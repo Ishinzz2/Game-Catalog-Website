@@ -62,7 +62,7 @@ Route::middleware('auth')->group(function () {
         $genreCounts = $owned->flatMap(fn ($item) => $item->game?->categories ?? collect())
             ->groupBy('id')->map(fn ($items) => $items->count())->sortDesc();
         $preferredGenres = $genreCounts->take(5)->map(function ($count, $id) {
-            $category = \\App\\Models\\Category::find($id);
+            $category = \App\Models\Category::find($id);
             return $category ? ['name' => $category->name, 'count' => $count] : null;
         })->filter()->values();
         $genreIds = $genreCounts->keys()->all();
