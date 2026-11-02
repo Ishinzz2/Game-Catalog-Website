@@ -6,6 +6,7 @@
 <input wire:model="cover_url" placeholder="URL cover (https://...)" class="rounded-xl bg-slate-950 p-3"><input wire:model="banner_url" placeholder="URL banner (https://...)" class="rounded-xl bg-slate-950 p-3">
 <input type="date" wire:model="release_date" class="rounded-xl bg-slate-950 p-3"><input type="number" min="0" max="100" wire:model="metacritic_score" placeholder="Metacritic 0-100" class="rounded-xl bg-slate-950 p-3">
 <input wire:model="esrb_rating" placeholder="ESRB rating" class="rounded-xl bg-slate-950 p-3">
+<fieldset class="rounded-xl border border-white/10 p-3 md:col-span-2"><legend class="px-2 text-sm text-slate-400">Kategori / genre game</legend><div class="flex flex-wrap gap-3">@forelse($categories as $category)<label class="flex items-center gap-2 text-sm"><input type="checkbox" wire:model="categoryIds" value="{{ $category->id }}" class="rounded border-white/20 bg-slate-950"> {{ $category->name }}</label>@empty<span class="text-sm text-slate-500">Belum ada kategori. Tambahkan melalui menu Kategori.</span>@endforelse</div></fieldset>
 <div class="flex gap-2 md:col-span-2"><button class="rounded-xl bg-violet-500 px-5 py-3 font-semibold">Simpan</button>@if($editingId)<button type="button" wire:click="resetForm" class="rounded-xl border border-white/10 px-5">Batal</button>@endif</div>
 @foreach($errors->all() as $error)<p class="text-sm text-red-300 md:col-span-2">{{$error}}</p>@endforeach
 </form>
