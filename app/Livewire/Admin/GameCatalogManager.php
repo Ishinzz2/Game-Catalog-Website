@@ -17,6 +17,8 @@ class GameCatalogManager extends Component {
     public ?string $release_date=null;
     public ?string $metacritic_score=null;
     public ?string $esrb_rating=null;
+    private function authorizeAdmin():void { abort_unless(auth()->user()?->isAdmin(),403); }
+    public function mount():void { $this->authorizeAdmin(); }
     public function updatedTitle():void {
         $this->authorizeAdmin(); if(!$this->editingId)$this->slug=Str::slug($this->title); }
     protected function rules():array{return [
